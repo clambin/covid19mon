@@ -66,9 +66,7 @@ prometheus:
     - pipenv run python covid19mon.py --port 8080 --stub --debug --interval 1 &
     - TESTPID=$!
     - sleep 5
-    - curl -s localhost:8080/metric | grep '^corona_confirmed_count '
-    - curl -s localhost:8080/metric | grep '^corona_death_count '
-    - curl -s localhost:8080/metric | grep '^corona_recovered_count '
+    - curl -s localhost:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
     - kill $TESTPID
 
 build_amd64:
