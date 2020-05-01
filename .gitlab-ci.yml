@@ -7,7 +7,6 @@ stages:
   only:
     changes:
       - "*.py"
-      - .gitlab-ci.yml
   except:
     - tags
 
@@ -75,8 +74,8 @@ build_amd64:
     - .docker
     - .build_only
   script:
-    - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-    - docker build --pull -t "$CI_PROJECT_PATH":amd64 .
+    - docker pull "$CI_PROJECT_PATH":amd64 || true
+    - docker build --cache-from "$CI_PROJECT_PATH":amd64 --pull -t "$CI_PROJECT_PATH":amd64 .
     - docker push "$CI_PROJECT_PATH":amd64
 
 build_arm:
@@ -85,8 +84,8 @@ build_arm:
     - .docker
     - .build_only
   script:
-    - docker pull "$CI_PROJECT_PATH":arm || true
     - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+    - docker pull "$CI_PROJECT_PATH":arm || true
     - docker build --cache-from "$CI_PROJECT_PATH":arm --pull -t "$CI_PROJECT_PATH":arm --file Dockerfile.qemu .
     - docker push "$CI_PROJECT_PATH":arm
 
