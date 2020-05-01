@@ -1,0 +1,104 @@
+stages:
+  - test
+  - build
+  - release
+
+.test_only:
+  only:
+    changes:
+      - "*.py"
+      - .gitlab-ci.yml
+  except:
+    - tags
+
+.build_only:
+  only:
+    changes:
+      - "*.py"
+      - "Dockerfile*"
+      - .gitlab-ci.yml
+  except:
+    - tags
+
+.docker:
+  image: docker:stable
+  services:
+    - docker:stable-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: 1
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_CERT_PATH: "/certs/client"
+    DOCKER_CLI_EXPERIMENTAL: enabled
+  tags:
+    - docker
+    - shared
+  before_script:
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+    - export CI_PROJECT_PATH=$(echo $CI_PROJECT_PATH | tr "[:upper:]" "[:lower:]")
+
+.docker_arm:
+  extends: .docker
+  tags:
+    - docker
+    - arm
+    - rpi
+
+flake8:
+  stage: test
+  extends: .test_only
+  image: python:3.7
+  before_script:
+    - pip install pipenv
+    - pipenv install --dev
+  script:
+    - pipenv run flake8 --max-line-length 120 *.py
+
+prometheus:
+  stage: test
+  extends: .test_only
+  image: python:3.7
+  before_script:
+    - pip install pipenv
+    - pipenv install
+  script:
+    - pipenv run python covid19mon.py --port 8080 --stub --debug --interval 1 &
+    - TESTPID=$!
+    - sleep 5
+    - curl -s localhost:8080/metric | grep '^corona_confirmed_count '
+    - curl -s localhost:8080/metric | grep '^corona_death_count '
+    - curl -s localhost:8080/metric | grep '^corona_recovered_count '
+    - kill $TESTPID
+
+build_amd64:
+  stage: build
+  extends:
+    - .docker
+    - .build_only
+  script:
+    - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+    - docker build --pull -t "$CI_PROJECT_PATH":amd64 .
+    - docker push "$CI_PROJECT_PATH":amd64
+
+build_arm:
+  stage: build
+  extends:
+    - .docker
+    - .build_only
+  script:
+    - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+    - docker build --pull -t "$CI_PROJECT_PATH":arm --file Dockerfile.qemu .
+    - docker push "$CI_PROJECT_PATH":arm
+
+publish:
+  stage: release
+  extends: .docker
+  only:
+    refs:
+      - master
+  script:
+    - docker manifest create "$CI_PROJECT_PATH":latest
+      "$CI_PROJECT_PATH":amd64
+      "$CI_PROJECT_PATH":arm
+    - docker manifest push "$CI_PROJECT_PATH":latest
