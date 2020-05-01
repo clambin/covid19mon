@@ -304,6 +304,7 @@ class CoronaStats(APIProbe):
             return result
 
     def get_countries(self):
+        logging.info('Getting all reported countries')
         # build the country -> country code map for countries reported by the API
         countries = set()
         stats = self.call('v1/stats')
@@ -312,6 +313,7 @@ class CoronaStats(APIProbe):
                 countries.add(entry['country'])
             else:
                 logging.warning(f'Could not find country code for "{entry["country"]}". Skipping ...')
+        logging.info(f'Got {len(countries)} countries.')
         return sorted(list(countries))
 
     def report(self, output):
@@ -331,7 +333,10 @@ class CoronaStats(APIProbe):
     def measure(self):
         if self.countries is None:
             self.countries = self.get_countries()
+        logging.info('Polling ...')
         output = {}
+        # fairly heavy on the server. perhaps just call v1/stats once (big response!)
+        # and correlate the date ourselves?
         for country in self.countries:
             stats = self.call('v1/total', country)
             if stats:
@@ -341,6 +346,7 @@ class CoronaStats(APIProbe):
                     output[country]['code'] = country_codes[country]
                 except KeyError as e:
                     logging.warning(f'Didn\'t find {e} in {stats}')
+        logging.info('Done')
         return output
 
 
@@ -353,7 +359,7 @@ if __name__ == '__main__':
         probe = CoronaStats(api_key)
         while True:
             probe.run()
-            time.sleep(1800)
+            time.sleep(4*3600)  # let's be kind on the server for now
     except KeyError as e:
         logging.fatal(f'Missed {e}')
         exit(1)
