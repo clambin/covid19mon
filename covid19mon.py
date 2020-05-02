@@ -291,7 +291,10 @@ class CoronaStats(APIProbe):
         with REQUEST_TIME.labels(self.url, endpoint).time():
             result = None
             try:
-                headers = {'x-rapidapi-key': self.api_key}
+                headers = {
+                    'x-rapidapi-key': self.api_key,
+                    'x-rapidapi-host': 'covid-19-coronavirus-statistics.p.rapidapi.com'
+                }
                 params = {'country': country} if country else None
                 response = self.get(endpoint, headers, params=params)
                 if response.status_code == 200:
@@ -302,19 +305,6 @@ class CoronaStats(APIProbe):
             except requests.exceptions.RequestException as err:
                 logging.warning(f'Failed to call "{self.url}": "{err}')
             return result
-
-    def get_countries(self):
-        logging.info('Getting all reported countries')
-        # build the country -> country code map for countries reported by the API
-        countries = set()
-        stats = self.call('v1/stats')
-        for entry in stats['data']['covid19Stats']:
-            if entry['country'] in country_codes:
-                countries.add(entry['country'])
-            else:
-                logging.warning(f'Could not find country code for "{entry["country"]}". Skipping ...')
-        logging.info(f'Got {len(countries)} countries.')
-        return sorted(list(countries))
 
     def report(self, output):
         for country, details in output.items():
@@ -331,22 +321,26 @@ class CoronaStats(APIProbe):
                 logging.debug(details)
 
     def measure(self):
-        if self.countries is None:
-            self.countries = self.get_countries()
-        logging.info('Polling ...')
+        def nonetozero(val):
+            return val if val is not None else 0
         output = {}
-        # fairly heavy on the server. perhaps just call v1/stats once (big response!)
-        # and correlate the date ourselves?
-        for country in self.countries:
-            stats = self.call('v1/total', country)
-            if stats:
-                try:
-                    output[country] = stats['data']
+        stats = self.call('v1/stats')
+        for entry in stats['data']['covid19Stats']:
+            country = entry['country']
+            if country not in country_codes:
+                logging.warning(f'Could not find country code for "{country}". Skipping ...')
+                continue
+            if country not in output:
+                output[country] = {
                     # Grafana world map uses country codes ('BE') rather than names ('Belgium')
-                    output[country]['code'] = country_codes[country]
-                except KeyError as e:
-                    logging.warning(f'Didn\'t find {e} in {stats}')
-        logging.info('Done')
+                    'code': country_codes[country],
+                    'confirmed': 0,
+                    'deaths': 0,
+                    'recovered': 0
+                }
+            output[country]['confirmed'] += nonetozero(entry['confirmed'])
+            output[country]['deaths'] += nonetozero(entry['deaths'])
+            output[country]['recovered'] += nonetozero(entry['recovered'])
         return output
 
 
@@ -359,7 +353,7 @@ if __name__ == '__main__':
         probe = CoronaStats(api_key)
         while True:
             probe.run()
-            time.sleep(4*3600)  # let's be kind on the server for now
+            time.sleep(1800)
     except KeyError as e:
         logging.fatal(f'Missed {e}')
         exit(1)
