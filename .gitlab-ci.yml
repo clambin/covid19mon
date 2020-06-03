@@ -96,8 +96,6 @@ prometheus-amd64:
     - apk add --update curl
     - docker run -p 8080:8080 --name test -e API_KEY=$API_KEY --rm -d $CI_PROJECT_PATH:build-amd64
     - sleep 5
-    - docker logs test
-    - curl -s docker:8080/metric
     - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
     - docker stop test
 
