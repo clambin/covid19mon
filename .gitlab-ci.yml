@@ -87,7 +87,19 @@ build_arm:
     - docker build --cache-from "$CI_PROJECT_PATH":build-arm --pull -t "$CI_PROJECT_PATH":build-arm --file Dockerfile.qemu .
     - docker push "$CI_PROJECT_PATH":build-arm
 
-prometheus:
+prometheus-amd64:
+  stage: qa
+  extends:
+    - .build_only
+    - .docker
+  script:
+    - apk add --update curl
+    - docker run -p 8080:8080 --name covid19mon --rm -d $CI_PROJECT_PATH:build-amd64
+    - sleep 10
+    - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
+    - docker stop covid19mon
+
+prometheus-arm:
   stage: qa
   extends:
     - .build_only
@@ -95,7 +107,7 @@ prometheus:
   script:
     - apk add --update curl
     - docker run -p 8080:8080 --name covid19mon --rm -d $CI_PROJECT_PATH:build-arm
-    - sleep 5
+    - sleep 10
     - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
     - docker stop covid19mon
 
