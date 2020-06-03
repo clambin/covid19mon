@@ -94,8 +94,8 @@ prometheus-amd64:
     - .docker
   script:
     - apk add --update curl
-    - docker run -p 8080:8080 --name covid19mon --rm $CI_PROJECT_PATH:build-amd64
-    - sleep 10
+    - docker run -p 8080:8080 --name test -e API_KEY=$API_KEY --rm -d $CI_PROJECT_PATH:build-amd64
+    - sleep 5
     - docker logs covid19mon
     - curl -s docker:8080/metric
     - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
@@ -108,9 +108,8 @@ prometheus-arm:
     - .docker_arm
   script:
     - apk add --update curl
-    - docker run -p 8080:8080 --name covid19mon --rm -d $CI_PROJECT_PATH:build-arm
-    - sleep 10
-    - curl -s docker:8080/metric
+    - docker run -p 8080:8080 --name covid19mon -e API_KEY=$API_KEY --rm -d $CI_PROJECT_PATH:build-arm
+    - sleep 5
     - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
     - docker stop covid19mon
 
