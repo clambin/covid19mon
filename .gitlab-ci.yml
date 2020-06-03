@@ -94,7 +94,7 @@ prometheus-amd64:
     - .docker
   script:
     - apk add --update curl
-    - docker run -p 8080:8080 --name covid19mon --rm -d $CI_PROJECT_PATH:build-amd64
+    - docker run -p 8080:8080 --name covid19mon --rm $CI_PROJECT_PATH:build-amd64
     - sleep 10
     - docker logs covid19mon
     - curl -s docker:8080/metric
