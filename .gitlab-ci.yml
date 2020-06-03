@@ -1,23 +1,27 @@
 stages:
-  - test
+  - unittest
   - build
+  - qa
   - release
 
+# Don't run for new tags
+workflow:
+  rules:
+    - if: $CI_COMMIT_TAG
+      when: never
+    - when: always
+
 .test_only:
-  only:
-    changes:
-      - "*.py"
-  except:
-    - tags
+  rules:
+    - changes:
+        - "*.py"
 
 .build_only:
-  only:
-    changes:
+  rules:
+    - changes:
       - "*.py"
       - "Dockerfile*"
       - .gitlab-ci.yml
-  except:
-    - tags
 
 .docker:
   image: docker:stable
@@ -45,28 +49,22 @@ stages:
     - rpi
 
 flake8:
-  stage: test
+  stage: unittest
   extends: .test_only
-  image: python:3.7
+  image: python:3.8
   before_script:
-    - pip install pipenv
-    - pipenv install --dev
+    - pip install flake8
   script:
-    - pipenv run flake8 --max-line-length 120 *.py
+    - flake8 --max-line-length 120 *.py
 
-prometheus:
-  stage: test
+sast:
+  stage: unittest
   extends: .test_only
-  image: python:3.7
+  image: python:3.8
   before_script:
-    - pip install pipenv
-    - pipenv install
+    - pip install bandit
   script:
-    - pipenv run python covid19mon.py --port 8080 --stub --debug --interval 1 &
-    - TESTPID=$!
-    - sleep 5
-    - curl -s localhost:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
-    - kill $TESTPID
+    - bandit -r *.py
 
 build_amd64:
   stage: build
@@ -74,9 +72,9 @@ build_amd64:
     - .docker
     - .build_only
   script:
-    - docker pull "$CI_PROJECT_PATH":amd64 || true
-    - docker build --cache-from "$CI_PROJECT_PATH":amd64 --pull -t "$CI_PROJECT_PATH":amd64 .
-    - docker push "$CI_PROJECT_PATH":amd64
+    - docker pull "$CI_PROJECT_PATH":build-amd64 || true
+    - docker build --cache-from "$CI_PROJECT_PATH":build-amd64 --pull -t "$CI_PROJECT_PATH":build-amd64 .
+    - docker push "$CI_PROJECT_PATH":build-amd64
 
 build_arm:
   stage: build
@@ -85,9 +83,21 @@ build_arm:
     - .build_only
   script:
     - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-    - docker pull "$CI_PROJECT_PATH":arm || true
-    - docker build --cache-from "$CI_PROJECT_PATH":arm --pull -t "$CI_PROJECT_PATH":arm --file Dockerfile.qemu .
-    - docker push "$CI_PROJECT_PATH":arm
+    - docker pull "$CI_PROJECT_PATH":build-arm || true
+    - docker build --cache-from "$CI_PROJECT_PATH":build-arm --pull -t "$CI_PROJECT_PATH":build-arm --file Dockerfile.qemu .
+    - docker push "$CI_PROJECT_PATH":build-arm
+
+prometheus:
+  stage: qa
+  extends:
+    - .build_only
+    - .docker_arm
+  script:
+    - apk add --update curl
+    - docker run -p 8080:8080 --name covid19mon --rm -d $CI_PROJECT_PATH:build-arm
+    - sleep 5
+    - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
+    - docker stop covid19mon
 
 publish:
   stage: release
@@ -97,6 +107,6 @@ publish:
       - master
   script:
     - docker manifest create "$CI_PROJECT_PATH":latest
-      "$CI_PROJECT_PATH":amd64
-      "$CI_PROJECT_PATH":arm
+        "$CI_PROJECT_PATH":build-amd64
+        "$CI_PROJECT_PATH":build-arm
     - docker manifest push "$CI_PROJECT_PATH":latest

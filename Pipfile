@@ -9,6 +9,7 @@ verify_ssl = true
 prometheus-client = "*"
 pimetrics = "*"
 flake8 = "*"
+requests = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"

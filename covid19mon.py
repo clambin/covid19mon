@@ -349,8 +349,8 @@ if __name__ == '__main__':
                         level=logging.INFO)
     start_http_server(8080)
     try:
-        api_key = os.environ['API_KEY']
-        probe = CoronaStats(api_key)
+        key = os.environ['API_KEY']
+        probe = CoronaStats(key)
         while True:
             probe.run()
             time.sleep(1800)
