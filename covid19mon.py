@@ -8,9 +8,9 @@ from pimetrics.probe import APIProbe
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
 GAUGES = {
-    'corona_confirmed_count': Gauge('corona_confirmed_count', 'Number of confirmed cases', ['country', 'name']),
-    'corona_death_count': Gauge('corona_death_count', 'Number of deaths', ['country', 'name']),
-    'corona_recovered_count': Gauge('corona_recovered_count', 'Number of recoveries', ['country', 'name']),
+    'corona_confirmed_count': Gauge('corona_confirmed_count', 'Number of confirmed cases', ['country_code', 'country_name']),
+    'corona_death_count': Gauge('corona_death_count', 'Number of deaths', ['country_code', 'country_name']),
+    'corona_recovered_count': Gauge('corona_recovered_count', 'Number of recoveries', ['country_code', 'country_name']),
 }
 
 country_codes = {
