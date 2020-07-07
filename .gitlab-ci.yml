@@ -1,8 +1,17 @@
+include:
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/python-tests.yml'
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/docker-build-multiarch.yml'
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/docker-swarm-deploy.yml'
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/github.yml'
+
 stages:
   - unittest
-  - build
   - qa
+  - build
   - release
+
+variables:
+  VERSION: '0.2'
 
 # Don't run for new tags
 workflow:
@@ -11,114 +20,17 @@ workflow:
       when: never
     - when: always
 
-.test_only:
-  rules:
-    - changes:
-        - "*.py"
-
-.build_only:
-  rules:
-    - changes:
-      - "*.py"
-      - "Dockerfile*"
-      - .gitlab-ci.yml
-
-.docker:
-  image: docker:stable
-  services:
-    - docker:stable-dind
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://docker:2376
-    DOCKER_TLS_VERIFY: 1
-    DOCKER_TLS_CERTDIR: "/certs"
-    DOCKER_CERT_PATH: "/certs/client"
-    DOCKER_CLI_EXPERIMENTAL: enabled
-  tags:
-    - docker
-    - shared
-  before_script:
-    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
-    - export CI_PROJECT_PATH=$(echo $CI_PROJECT_PATH | tr "[:upper:]" "[:lower:]")
-
-.docker_arm:
-  extends: .docker
-  tags:
-    - docker
-    - arm
-    - rpi
-
-flake8:
-  stage: unittest
-  extends: .test_only
-  image: python:3.8
-  before_script:
-    - pip install flake8
-  script:
-    - flake8 --max-line-length 120 *.py
-
-sast:
-  stage: unittest
-  extends: .test_only
-  image: python:3.8
-  before_script:
-    - pip install bandit
-  script:
-    - bandit -r *.py
-
-build_amd64:
-  stage: build
-  extends:
-    - .docker
-    - .build_only
-  script:
-    - docker pull "$CI_PROJECT_PATH":build-amd64 || true
-    - docker build --cache-from "$CI_PROJECT_PATH":build-amd64 --pull -t "$CI_PROJECT_PATH":build-amd64 .
-    - docker push "$CI_PROJECT_PATH":build-amd64
-
-build_arm:
-  stage: build
-  extends:
-    - .docker
-    - .build_only
-  script:
-    - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-    - docker pull "$CI_PROJECT_PATH":build-arm || true
-    - docker build --cache-from "$CI_PROJECT_PATH":build-arm --pull -t "$CI_PROJECT_PATH":build-arm --file Dockerfile.qemu .
-    - docker push "$CI_PROJECT_PATH":build-arm
-
-prometheus-amd64:
+prometheus:
   stage: qa
-  extends:
-    - .build_only
-    - .docker
+  image: python3.7
+  before_script:
+    #- apk add --update curl
+    - pip install pipenv
+    - pipenv install
   script:
-    - apk add --update curl
-    - docker run -p 8080:8080 --name test -e API_KEY=$API_KEY --rm -d $CI_PROJECT_PATH:build-amd64
-    - sleep 5
-    - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
-    - docker stop test
-
-prometheus-arm:
-  stage: qa
-  extends:
-    - .build_only
-    - .docker_arm
-  script:
-    - apk add --update curl
-    - docker run -p 8080:8080 --name test -e API_KEY=$API_KEY --rm -d $CI_PROJECT_PATH:build-arm
-    - sleep 5
-    - curl -s docker:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
-    - docker stop test
-
-publish:
-  stage: release
-  extends: .docker
-  only:
-    refs:
-      - master
-  script:
-    - docker manifest create "$CI_PROJECT_PATH":latest
-        "$CI_PROJECT_PATH":build-amd64
-        "$CI_PROJECT_PATH":build-arm
-    - docker manifest push "$CI_PROJECT_PATH":latest
+    - export API_KEY
+    - pipenv run python covid19.py &
+    - COVID19=$?
+    - sleep 10
+    - curl -s localhost:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'
+    - kill $COVID19
