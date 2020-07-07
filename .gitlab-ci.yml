@@ -21,6 +21,14 @@ workflow:
       when: never
     - when: always
 
+pytest:
+  before_script:
+    - echo No unit tests defined
+    - return 0
+  artifacts:
+    reports:
+      junit: []
+
 prometheus:
   stage: qa
   image: python3.7
