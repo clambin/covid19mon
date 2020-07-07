@@ -9,6 +9,7 @@ stages:
   - qa
   - build
   - release
+  - deploy
 
 variables:
   VERSION: '0.2'
