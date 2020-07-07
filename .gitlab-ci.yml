@@ -24,7 +24,8 @@ workflow:
 pytest:
   before_script:
     - echo No unit tests defined
-    - return 0
+  script:
+    - echo Skipping
   artifacts:
     reports:
       junit: []
