@@ -13,7 +13,7 @@ stages:
 
 variables:
   VERSION: '0.4'
-  DOCKER_SWARM_SERVICE: 'monitor_covid19
+  DOCKER_SWARM_SERVICE: 'monitor_covid19'
 
 # Don't run for new tags
 workflow:
