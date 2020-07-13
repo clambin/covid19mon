@@ -328,22 +328,23 @@ class CoronaStats(APIProbe):
             return val if val is not None else 0
         output = {}
         stats = self.call('v1/stats')
-        for entry in stats['data']['covid19Stats']:
-            country = entry['country']
-            if country not in country_codes:
-                logging.warning(f'Could not find country code for "{country}". Skipping ...')
-                continue
-            if country not in output:
-                output[country] = {
-                    # Grafana world map uses country codes ('BE') rather than names ('Belgium')
-                    'code': country_codes[country],
-                    'confirmed': 0,
-                    'deaths': 0,
-                    'recovered': 0
-                }
-            output[country]['confirmed'] += nonetozero(entry['confirmed'])
-            output[country]['deaths'] += nonetozero(entry['deaths'])
-            output[country]['recovered'] += nonetozero(entry['recovered'])
+        if stats:
+            for entry in stats['data']['covid19Stats']:
+                country = entry['country']
+                if country not in country_codes:
+                    logging.warning(f'Could not find country code for "{country}". Skipping ...')
+                    continue
+                if country not in output:
+                    output[country] = {
+                        # Grafana world map uses country codes ('BE') rather than names ('Belgium')
+                        'code': country_codes[country],
+                        'confirmed': 0,
+                        'deaths': 0,
+                        'recovered': 0
+                    }
+                output[country]['confirmed'] += nonetozero(entry['confirmed'])
+                output[country]['deaths'] += nonetozero(entry['deaths'])
+                output[country]['recovered'] += nonetozero(entry['recovered'])
         return output
 
 
