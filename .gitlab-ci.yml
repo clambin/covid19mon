@@ -12,7 +12,7 @@ stages:
   - deploy
 
 variables:
-  VERSION: '0.6'
+  VERSION: '0.7'
   DOCKER_SWARM_SERVICE: 'monitor_covid19'
 
 # Don't run for new tags
