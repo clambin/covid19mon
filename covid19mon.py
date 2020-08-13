@@ -357,7 +357,7 @@ if __name__ == '__main__':
         probe = CoronaStats(key)
         while True:
             probe.run()
-            time.sleep(1800)
+            time.sleep(1200)
     except KeyError as e:
         logging.fatal(f'Missed {e}')
         exit(1)
