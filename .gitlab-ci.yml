@@ -1,6 +1,6 @@
 include:
   - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/python-tests.yml'
-  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/docker-build-multiarch.yml'
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/arm64/docker-build-multiarch.yml'
   - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/docker-swarm-deploy.yml'
   - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/github.yml'
 
@@ -12,7 +12,7 @@ stages:
   - deploy
 
 variables:
-  VERSION: '0.7'
+  VERSION: '0.8'
   DOCKER_SWARM_SERVICE: 'monitor_covid19'
 
 # Don't run for new tags
