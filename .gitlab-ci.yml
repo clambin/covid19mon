@@ -6,13 +6,12 @@ include:
 
 stages:
   - unittest
-  - qa
   - build
   - release
   - deploy
 
 variables:
-  VERSION: '0.8'
+  VERSION: '0.9'
   DOCKER_SWARM_SERVICE: 'monitor_covid19'
 
 # Don't run for new tags
@@ -32,7 +31,7 @@ pytest:
       junit: []
 
 prometheus:
-  stage: qa
+  stage: unittest
   image: python:3.7
   before_script:
     - pip install pipenv
