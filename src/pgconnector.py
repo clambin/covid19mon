@@ -146,7 +146,7 @@ class CovidConnector(PostgresConnector):
                 conn = self.connect()
                 curr = conn.cursor()
                 curr.execute("""
-                INSERT INTO covid19(time, country_code, country_name, confirmed, death, recovered) 
+                INSERT INTO covid19(time, country_code, country_name, confirmed, death, recovered)
                 VALUES(%s,%s,%s,%s,%s,%s)
                 """,
                              (time, country_code, country_name, confirmed, deaths, recovered,))
@@ -173,7 +173,7 @@ class CovidConnector(PostgresConnector):
                 conn = self.connect()
                 curr = conn.cursor()
                 curr.executemany("""
-                INSERT INTO covid19(time, country_code, country_name, confirmed, death, recovered) 
+                INSERT INTO covid19(time, country_code, country_name, confirmed, death, recovered)
                 VALUES(%s,%s,%s,%s,%s,%s)
                 """,
                                  changes)
