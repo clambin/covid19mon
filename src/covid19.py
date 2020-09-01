@@ -5,6 +5,7 @@ import os
 import requests
 from prometheus_client import start_http_server, Summary, Gauge
 from pimetrics.probe import APIProbe
+from src.pgconnector import CovidConnector, DBError
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
 GAUGES = {
@@ -284,10 +285,11 @@ country_codes = {
 
 
 class CoronaStats(APIProbe):
-    def __init__(self, api_key):
+    def __init__(self, api_key, dbconnector=None):
         super().__init__('https://covid-19-coronavirus-statistics.p.rapidapi.com/')
         self.api_key = api_key
         self.countries = None
+        self.dbconnector = dbconnector
 
     # Uses https://rapidapi.com/KishCom/api/covid-19-coronavirus-statistics
     def call(self, endpoint, country=None):
@@ -319,9 +321,13 @@ class CoronaStats(APIProbe):
                 GAUGES['corona_death_count'].labels(code, country).set(deaths)
                 recovered = details['recovered']
                 GAUGES['corona_recovered_count'].labels(code, country).set(recovered)
+                if self.dbconnector:
+                    self.dbconnector.add(details['code'], country, confirmed, deaths, recovered)
             except KeyError as err:
                 logging.warning(f'Could not find {err}')
                 logging.debug(details)
+            except DBError as err:
+                logging.error(f'Could not insert data in covid19 db: {err}')
 
     def measure(self):
         def nonetozero(val):
@@ -348,16 +354,27 @@ class CoronaStats(APIProbe):
         return output
 
 
-if __name__ == '__main__':
+def covid19(configuration):
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S',
-                        level=logging.INFO)
-    start_http_server(8080)
+                        level=logging.DEBUG if configuration.debug else logging.INFO)
+    start_http_server(configuration.port)
+
+    dbconnector = None
+    if configuration.postgres_host:
+        dbconnector = CovidConnector(
+            host=configuration.postgres_host,
+            port=configuration.postgres_port,
+            database=configuration.postgres_database,
+            user=configuration.postgres_user,
+            password=configuration.postgres_password
+        )
+
     try:
-        key = os.environ['API_KEY']
-        probe = CoronaStats(key)
+        key = configuration.apikey
+        probe = CoronaStats(key, dbconnector)
         while True:
             probe.run()
-            time.sleep(1200)
+            time.sleep(configuration.interval)
     except KeyError as e:
         logging.fatal(f'Missed {e}')
         exit(1)

@@ -11,7 +11,7 @@ stages:
   - deploy
 
 variables:
-  VERSION: '0.9'
+  VERSION: '0.10'
   DOCKER_SWARM_SERVICE: 'monitor_covid19'
 
 # Don't run for new tags
@@ -37,8 +37,7 @@ prometheus:
     - pip install pipenv
     - pipenv install
   script:
-    - export API_KEY
-    - pipenv run python covid19mon.py &
+    - pipenv run python covid19.py --apikey=$APIKEY &
     - COVID19=$?
     - sleep 10
     - curl -s localhost:8080/metric | grep '^request_processing_seconds_count{endpoint="v1/stats",server="https://covid-19-coronavirus-statistics.p.rapidapi.com/"}'

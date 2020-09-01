@@ -10,6 +10,7 @@ prometheus-client = "*"
 pimetrics = "*"
 flake8 = "*"
 requests = "*"
+postgres = "*"
 
 [requires]
 python_version = "3.7"
