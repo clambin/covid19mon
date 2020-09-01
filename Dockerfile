@@ -1,11 +1,11 @@
-FROM python:3.7
+FROM python:3.7-slim
 MAINTAINER Christophe Lambin <christophe.lambin@gmail.com>
 
 WORKDIR /app
 
 EXPOSE 8080
-RUN addgroup -S -g 1000 abc && \
-    adduser -S --uid 1000 --ingroup abc abc
+RUN groupadd -g 1000 abc && \
+    useradd -u 1000 -g abc abc
 RUN pip install --upgrade pip && \
     pip install pipenv
 COPY Pip* ./
