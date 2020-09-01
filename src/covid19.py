@@ -1,7 +1,6 @@
 import json
 import logging
 import time
-import os
 import requests
 from prometheus_client import start_http_server, Summary, Gauge
 from pimetrics.probe import APIProbe

@@ -30,7 +30,7 @@ def get_configuration(args=None):
     parser.add_argument('--debug', action='store_true',
                         help='Set logging level to debug')
     parser.add_argument('--apikey',
-                        help=f'API Key')
+                        help='API Key')
     parser.add_argument('--postgres-host',
                         help='Postgres DB host')
     parser.add_argument('--postgres-port', default=default_pg_port,
