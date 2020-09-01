@@ -320,11 +320,12 @@ class CoronaStats(APIProbe):
                 GAUGES['corona_death_count'].labels(code, country).set(deaths)
                 recovered = details['recovered']
                 GAUGES['corona_recovered_count'].labels(code, country).set(recovered)
-                if self.dbconnector:
-                    self.dbconnector.add(details['code'], country, confirmed, deaths, recovered)
             except KeyError as err:
                 logging.warning(f'Could not find {err}')
                 logging.debug(details)
+        if output and self.dbconnector:
+            try:
+                self.dbconnector.addmany(output)
             except DBError as err:
                 logging.error(f'Could not insert data in covid19 db: {err}')
 
