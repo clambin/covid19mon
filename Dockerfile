@@ -11,7 +11,7 @@ RUN pip install --upgrade pip && \
 COPY Pip* ./
 RUN pipenv install --system --deploy --ignore-pipfile
 COPY *.py ./
-COPY src/*.py ./src
+COPY src/*.py ./src/
 
 USER abc
 ENTRYPOINT ["/usr/local/bin/python3", "covid19.py"]
