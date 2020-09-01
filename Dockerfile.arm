@@ -12,7 +12,9 @@ RUN groupadd -g 1000 abc && \
     pip install --upgrade pip && \
     pip install pipenv && \
     echo "[global]" >> /etc/pip.conf && \
-    echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf
+    echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf && \
+    apt-get update && \
+    apt-get install libpq5
 COPY Pip* ./
 RUN pip install psycopg2-binary && \
     pipenv install --system --deploy --ignore-pipfile
