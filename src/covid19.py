@@ -289,6 +289,7 @@ class CoronaStats(APIProbe):
         self.api_key = api_key
         self.countries = None
         self.dbconnector = dbconnector
+        self.bad_countries = []
 
     # Uses https://rapidapi.com/KishCom/api/covid-19-coronavirus-statistics
     def call(self, endpoint, country=None):
@@ -338,7 +339,9 @@ class CoronaStats(APIProbe):
             for entry in stats['data']['covid19Stats']:
                 country = entry['country']
                 if country not in country_codes:
-                    logging.warning(f'Could not find country code for "{country}". Skipping ...')
+                    if country not in self.bad_countries:
+                        logging.warning(f'Could not find country code for "{country}". Skipping ...')
+                        self.bad_countries.append(country)
                     continue
                 if country not in output:
                     output[country] = {
