@@ -24,21 +24,6 @@ class PostgresConnector:
             password=self.password
         )
 
-    def _query(self, statement):
-        conn = None
-        try:
-            conn = self.connect()
-            cur = conn.cursor()
-            cur.execute(statement)
-            data = cur.fetchall()
-            cur.close()
-        except psycopg2.OperationalError as e:
-            raise DBError(e)
-        finally:
-            if conn:
-                conn.close()
-        return data
-
 
 class TSDBConnector(PostgresConnector):
     def __init__(self, host, port, database, user, password):
