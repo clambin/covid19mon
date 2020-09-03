@@ -1,4 +1,5 @@
 import argparse
+import copy
 
 from src.version import version
 
@@ -45,4 +46,7 @@ def get_configuration(args=None):
 
 
 def print_configuration(config):
-    return ', '.join([f'{key}={val}' for key, val in vars(config).items()])
+    redacted = copy.deepcopy(config)
+    if redacted.postgres_password:
+        redacted.postgres_password = '*'*12
+    return ', '.join([f'{key}={val}' for key, val in vars(redacted).items()])

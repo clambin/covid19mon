@@ -21,15 +21,6 @@ workflow:
       when: never
     - when: always
 
-pytest:
-  before_script:
-    - echo No unit tests defined
-  script:
-    - echo Skipping
-  artifacts:
-    reports:
-      junit: []
-
 prometheus:
   stage: unittest
   image: python:3.7

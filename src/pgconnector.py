@@ -98,7 +98,7 @@ class CovidConnector(PostgresConnector):
         self.first = True
         self.reported = {}
 
-    def _create_covid_table(self):
+    def _build_covid_db(self):
         if self.first:
             conn = None
             try:
@@ -112,7 +112,20 @@ class CovidConnector(PostgresConnector):
                     confirmed DOUBLE PRECISION,
                     death DOUBLE PRECISION,
                     recovered DOUBLE PRECISION
-                )
+                    )
+                """)
+                # FIXME: 'create or replace' can fail if we're changing columns
+                curr.execute("""
+                    CREATE OR REPLACE VIEW delta AS
+                        SELECT country_code, DATE_TRUNC('day', time) AS "day",
+                        MAX(confirmed)-LAG(MAX(confirmed)) OVER (ORDER BY country_code, DATE_TRUNC('day',time))
+                            AS "confirmed",
+                        MAX(death)-LAG(MAX(death)) OVER (ORDER BY country_code, DATE_TRUNC('day',time)) AS "death",
+                        MAX(recovered)-LAG(MAX(recovered)) OVER (ORDER BY country_code, DATE_TRUNC('day',time))
+                            AS "recovered"
+                        FROM covid19
+                        GROUP BY 1,2
+                        ORDER BY 1,2;
                 """)
                 curr.close()
                 conn.commit()
@@ -125,9 +138,9 @@ class CovidConnector(PostgresConnector):
 
     def _should_report(self, country, confirmed, deaths, recovered):
         return country not in self.reported or \
-               confirmed != self.reported[country]['confirmed'] or \
-               deaths != self.reported[country]['deaths'] or \
-               recovered != self.reported[country]['recovered']
+            confirmed != self.reported[country]['confirmed'] or \
+            deaths != self.reported[country]['deaths'] or \
+            recovered != self.reported[country]['recovered']
 
     def _record(self, country, confirmed, deaths, recovered):
         self.reported[country] = {
@@ -137,7 +150,7 @@ class CovidConnector(PostgresConnector):
         }
 
     def add(self, country_code, country_name, confirmed, deaths, recovered, time=None):
-        self._create_covid_table()
+        self._build_covid_db()
         if self._should_report(country_name, confirmed, deaths, recovered):
             if time is None:
                 time = datetime.now()
@@ -160,7 +173,7 @@ class CovidConnector(PostgresConnector):
                     conn.close()
 
     def addmany(self, records):
-        self._create_covid_table()
+        self._build_covid_db()
         time = datetime.now()
         changes = [
             (time, details['code'], country, details['confirmed'], details['deaths'], details['recovered'])
@@ -175,8 +188,7 @@ class CovidConnector(PostgresConnector):
                 curr.executemany("""
                 INSERT INTO covid19(time, country_code, country_name, confirmed, death, recovered)
                 VALUES(%s,%s,%s,%s,%s,%s)
-                """,
-                                 changes)
+                """, changes)
                 curr.close()
                 conn.commit()
                 for (time, code, country, confirmed, deaths, recovered) in changes:
