@@ -3,17 +3,13 @@ import psycopg2
 from src.pgconnector import CovidConnector
 
 
-def get_dbenv_gitlab():
+def get_dbenv():
     return \
         os.getenv('POSTGRES_HOST'), \
         os.getenv('POSTGRES_PORT'), \
         os.getenv('POSTGRES_DB'), \
         os.getenv('POSTGRES_USER'), \
         os.getenv('POSTGRES_PASSWORD')
-
-
-def get_dbenv():
-    return '192.168.0.10', 5432, 'test', 'postgres', 'example'
 
 
 def test_pgconnector():
