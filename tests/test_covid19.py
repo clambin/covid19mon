@@ -1,4 +1,3 @@
-import pytest
 import json
 from src.covid19 import CoronaStats
 
