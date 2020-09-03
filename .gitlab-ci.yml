@@ -13,6 +13,11 @@ stages:
 variables:
   VERSION: '0.10'
   DOCKER_SWARM_SERVICE: 'monitor_covid19'
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: 5432
+  POSTGRES_DB: covid19
+  POSTGRES_USER: covid
+  POSTGRES_PASSWORD: example
 
 # Don't run for new tags
 workflow:
@@ -20,6 +25,24 @@ workflow:
     - if: $CI_COMMIT_TAG
       when: never
     - when: always
+
+services:
+  - postgres
+
+pytest:
+  stage: unittest
+  image: python:3.7
+  before_script:
+    - pip install pipenv
+    - pipenv install --dev
+    - export PYTHONPATH=$(pwd)
+    - export POSTGRES_HOST POSTGRES_PORT POSTGRES_DB POSTGRES_USER POSTGRES_PASSWORD
+  script:
+    - cd tests && pipenv run pytest --cov --junitxml=report.xml
+    - pipenv run bash <(curl -s https://codecov.io/bash) -s tests
+  artifacts:
+    reports:
+      junit: tests/report.xml
 
 prometheus:
   stage: unittest

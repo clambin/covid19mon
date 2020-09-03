@@ -52,7 +52,7 @@ class TSDBConnector(PostgresConnector):
             conn = self.connect()
             cur = conn.cursor()
             cur.execute("""
-            SELECT time, name, value, labels FROM METRICS WHERE value != 'NaN' ORDER BY TIME
+            SELECT time, name, value, labels FROM metrics WHERE value != 'NaN' ORDER BY time
             """)
 
             while True:
@@ -176,7 +176,7 @@ class CovidConnector(PostgresConnector):
         self._build_covid_db()
         time = datetime.now()
         changes = [
-            (time, details['code'], country, details['confirmed'], details['deaths'], details['recovered'])
+            [time, details['code'], country, details['confirmed'], details['deaths'], details['recovered']]
             for country, details in records.items()
             if self._should_report(country, details['confirmed'], details['deaths'], details['recovered'])
         ]
