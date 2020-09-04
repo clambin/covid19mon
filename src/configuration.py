@@ -30,6 +30,8 @@ def get_configuration(args=None):
                         help=f'Prometheus listener port (default: {default_port})')
     parser.add_argument('--debug', action='store_true',
                         help='Set logging level to debug')
+    parser.add_argument('--once', action='store_true',
+                        help='Measure once and then terminate')
     parser.add_argument('--apikey',
                         help='API Key')
     parser.add_argument('--postgres-host',

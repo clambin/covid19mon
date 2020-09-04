@@ -26,8 +26,7 @@ def test_pgconnector():
     except psycopg2.DatabaseError:
         conn.rollback()
     connector.add('BE', 'Belgium', 3, 2, 1)
-    cur.execute("SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 ORDER BY time")
-    rows = cur.fetchmany(1000)
+    rows = connector.list()
     assert len(rows) == 1
     assert len(rows[0]) == 6
     assert rows[0][1] == 'BE'
@@ -43,8 +42,7 @@ def test_pgconnector():
             'recovered': 1
         }
     })
-    cur.execute("SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 ORDER BY time")
-    rows = cur.fetchmany(1000)
+    rows = connector.list()
     assert len(rows) == 1
     connector.addmany({
         'Belgium': {
@@ -54,8 +52,7 @@ def test_pgconnector():
             'recovered': 2
         }
     })
-    cur.execute("SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 ORDER BY time")
-    rows = cur.fetchmany(1000)
+    rows = connector.list()
     assert len(rows) == 2
     assert rows[0][1] == rows[1][1] == 'BE'
     assert rows[0][2] == rows[1][2] == 'Belgium'

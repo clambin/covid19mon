@@ -32,10 +32,10 @@ def test_main_config():
 
 
 def test_print_config():
-    args = '--apikey 4321 --postgres-host foobar --postgres-port 5432 --postgres-database snafu'.split()
+    args = '--once --apikey 4321 --postgres-host foobar --postgres-port 5432 --postgres-database snafu'.split()
     config = get_configuration(args)
     output = print_configuration(config)
-    assert output == 'interval=1200, port=8080, debug=False, apikey=4321, postgres_host=foobar, ' \
+    assert output == 'interval=1200, port=8080, debug=False, once=True, apikey=4321, postgres_host=foobar, ' \
                      'postgres_port=5432, postgres_database=snafu, postgres_user=None, ' \
                      'postgres_password=None'
 
@@ -44,6 +44,6 @@ def test_redacted_config():
     args = '--postgres-user foo --postgres-password bar'.split()
     config = get_configuration(args)
     output = print_configuration(config)
-    assert output == 'interval=1200, port=8080, debug=False, apikey=None, postgres_host=None, ' \
-                     'postgres_port=5432, postgres_database=covid19, postgres_user=foo, ' \
+    assert output == 'interval=1200, port=8080, debug=False, once=False, apikey=None, ' \
+                     'postgres_host=None, postgres_port=5432, postgres_database=covid19, postgres_user=foo, ' \
                      'postgres_password=************'

@@ -377,6 +377,8 @@ def covid19(configuration):
         probe = CoronaStats(key, dbconnector)
         while True:
             probe.run()
+            if configuration.once:
+                break
             time.sleep(configuration.interval)
     except KeyError as e:
         logging.fatal(f'Missed {e}')

@@ -121,6 +121,27 @@ class CovidConnector(PostgresConnector):
                     conn.close()
             self.first = False
 
+    def _drop_covid_db(self):
+        conn = None
+        try:
+            conn = self.connect()
+            cur = conn.cursor()
+            try:
+                cur.execute("""DROP VIEW delta""")
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError):
+                conn.rollback()
+            try:
+                cur.execute("""DROP TABLE covid19""")
+                conn.commit()
+            except (Exception, psycopg2.DatabaseError):
+                conn.rollback()
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.critical(f'Could not drop covid tables: {error}')
+        finally:
+            if conn:
+                conn.close()
+
     def _should_report(self, country, confirmed, deaths, recovered):
         return country not in self.reported or \
             confirmed != self.reported[country]['confirmed'] or \
@@ -183,3 +204,20 @@ class CovidConnector(PostgresConnector):
             finally:
                 if conn:
                     conn.close()
+
+    def list(self):
+        conn = rows = None
+        try:
+            conn = self.connect()
+            cur = conn.cursor()
+            cur.execute("""
+            SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 ORDER BY time
+            """)
+            rows = cur.fetchall()
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.critical(f'Failed to get data: {error}')
+        finally:
+            if conn:
+                conn.close()
+        return rows
