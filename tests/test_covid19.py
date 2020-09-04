@@ -11,17 +11,21 @@ class CoronaStatsTest(CoronaStats):
         def __init__(self, status_code, output):
             self.status_code = status_code
             self.reason = ''
-            self.data = json.loads(output)
+            self.data = json.loads(output) if output else None
 
         def json(self):
             return self.data
 
-    def __init__(self):
+    def __init__(self, success=True):
         super().__init__(None, None)
+        self.success = success
 
     def get(self, endpoint=None, headers=None, body=None, params=None):
-        with open('data/covid19.json', 'r') as output:
-            return CoronaStatsTest.Response(200, ''.join(output.readlines()))
+        if self.success:
+            with open('data/covid19.json', 'r') as output:
+                return CoronaStatsTest.Response(200, ''.join(output.readlines()))
+        else:
+            return CoronaStatsTest.Response(500, '')
 
 
 def test_covidstats():
@@ -31,6 +35,13 @@ def test_covidstats():
     assert measured['Belgium'] == {'code': 'BE', 'confirmed': 85911, 'deaths': 9898, 'recovered': 18490}
     assert measured['US'] == {'code': 'US', 'confirmed': 6113510, 'deaths': 185720, 'recovered': 2231757}
     assert '???' not in measured
+
+
+def test_bad_covidstats():
+    covid = CoronaStatsTest(False)
+    covid.run()
+    measured = covid.measured()
+    assert not measured
 
 
 def test_main():
