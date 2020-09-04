@@ -291,7 +291,6 @@ class CoronaStats(APIProbe):
         self.dbconnector = dbconnector
         self.bad_countries = []
 
-    # Uses https://rapidapi.com/KishCom/api/covid-19-coronavirus-statistics
     def call(self, endpoint, country=None):
         with REQUEST_TIME.labels(self.url, endpoint).time():
             result = None
