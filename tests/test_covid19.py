@@ -37,7 +37,7 @@ def test_main():
     host, port, database, user, password = get_dbenv()
     connector = CovidConnector(host, port, database, user, password)
     connector._drop_covid_db()
-    config = get_configuration(f'--once '
+    config = get_configuration(f'--once --debug '
                                f'--apikey {os.getenv("APIKEY")} '
                                f'--postgres-host {host} '
                                f'--postgres-port {port} '
