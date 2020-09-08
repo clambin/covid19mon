@@ -5,42 +5,6 @@ import logging
 from src.covid19 import country_codes
 from src.pgconnector import CovidConnector
 
-# use https://api.covid19api.com/dayone/country/<country_slug>
-# to backfill data (select min(time) from covid
-#
-# sample output:
-#
-# [
-#   {
-#     "Country": "Belgium",
-#     "CountryCode": "BE",
-#     "Province": "",
-#     "City": "",
-#     "CityCode": "",
-#     "Lat": "50.5",
-#     "Lon": "4.47",
-#     "Confirmed": 1,
-#     "Deaths": 0,
-#     "Recovered": 0,
-#     "Active": 1,
-#     "Date": "2020-02-04T00:00:00Z"
-#   },
-# ...
-# ]
-#
-# CAVEAT: API is rate-controlled, so may fail when we pull ALL data
-#
-# country slugs are from: https://api.covid19api.com/countries
-#
-# [
-#   {
-#     "Country": "Madagascar",
-#     "Slug": "madagascar",
-#     "ISO2": "MG"
-#   },
-# ...
-# ]
-
 # You expect country names & codes would be an easy standard but noooooo ...
 country_mapping = {
     'Wallis and Futuna Islands': 'Wallis and Futuna',
@@ -121,7 +85,7 @@ class HistoricalData:
 
     def get_historical_data(self, slug):
         output = dict()
-        for entry in self._call(f'dayone/country/{slug}'):
+        for entry in self._call(f'total/country/{slug}'):
             output[datetime.datetime.strptime(entry['Date'], '%Y-%m-%dT%H:%M:%SZ')] = {
                 'confirmed': entry['Confirmed'],
                 'death': entry['Deaths'],
