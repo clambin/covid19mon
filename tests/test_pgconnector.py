@@ -68,4 +68,3 @@ def test_pgconnector():
     assert entry.strftime('%Y-%m-%d') == '2000-01-01'
     entry = connector.get_first('Not a country')
     assert entry is None
-
