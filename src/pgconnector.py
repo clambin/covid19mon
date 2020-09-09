@@ -47,9 +47,9 @@ class CovidConnector(PostgresConnector):
                     recovered DOUBLE PRECISION
                     )
                 """)
-                # FIXME: 'create or replace' can fail if we're changing columns
+                curr.execute("""DROP VIEW IF EXISTS delta""")
                 curr.execute("""
-                    CREATE OR REPLACE VIEW delta AS
+                    CREATE VIEW delta AS
                         SELECT country_code, DATE_TRUNC('day', time) AS "day",
                         MAX(confirmed)-LAG(MAX(confirmed)) OVER (ORDER BY country_code, DATE_TRUNC('day',time))
                             AS "confirmed",
@@ -74,16 +74,9 @@ class CovidConnector(PostgresConnector):
         try:
             conn = self.connect()
             cur = conn.cursor()
-            try:
-                cur.execute("""DROP VIEW delta""")
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError):
-                conn.rollback()
-            try:
-                cur.execute("""DROP TABLE covid19""")
-                conn.commit()
-            except (Exception, psycopg2.DatabaseError):
-                conn.rollback()
+            cur.execute("""DROP VIEW IF EXISTS delta""")
+            cur.execute("""DROP TABLE IF EXISTS covid19""")
+            conn.commit()
         except (Exception, psycopg2.DatabaseError) as error:
             logging.critical(f'Could not drop covid tables: {error}')
         finally:

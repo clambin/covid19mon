@@ -314,17 +314,13 @@ class CoronaStats(APIProbe):
 
     def report(self, output):
         for country, details in output.items():
-            try:
-                code = details['code']
-                confirmed = details['confirmed']
-                deaths = details['deaths']
-                recovered = details['recovered']
-                GAUGES['corona_confirmed_count'].labels(code, country).set(confirmed)
-                GAUGES['corona_death_count'].labels(code, country).set(deaths)
-                GAUGES['corona_recovered_count'].labels(code, country).set(recovered)
-            except KeyError as err:
-                logging.warning(f'Could not find {err}')
-                logging.debug(details)
+            code = details['code']
+            confirmed = details['confirmed']
+            deaths = details['deaths']
+            recovered = details['recovered']
+            GAUGES['corona_confirmed_count'].labels(code, country).set(confirmed)
+            GAUGES['corona_death_count'].labels(code, country).set(deaths)
+            GAUGES['corona_recovered_count'].labels(code, country).set(recovered)
         if output and self.dbconnector:
             try:
                 self.dbconnector.addmany(output)

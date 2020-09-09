@@ -21,11 +21,10 @@ def test_pgconnector():
     assert conn
     cur = conn.cursor()
     assert cur
-    try:
-        cur.execute("DELETE FROM covid19")
-        conn.commit()
-    except psycopg2.DatabaseError:
-        conn.rollback()
+    cur.execute("DELETE FROM covid19")
+    cur.close()
+    conn.commit()
+    conn.close()
     connector.add('BE', 'Belgium', 3, 2, 1)
     rows = connector.list()
     assert len(rows) == 1
