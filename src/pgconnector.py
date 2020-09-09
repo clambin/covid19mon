@@ -186,4 +186,3 @@ class CovidConnector(PostgresConnector):
             if conn:
                 conn.close()
         return entry[0] if entry else None
-

@@ -102,7 +102,6 @@ class HistoricalData:
             country = self.get_country(slug)
             country, code = self.map_country(country)
             logging.info(f'Processing {country}')
-            # last_date = datetime.datetime(2020, 7, 2)
             last_date = covidconnector.get_first(country)
             entries = self.get_historical_data(slug)
             times = sorted(entries.keys())
