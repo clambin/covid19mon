@@ -1,6 +1,5 @@
 import os
 import datetime
-import psycopg2
 from src.pgconnector import CovidConnector
 
 
