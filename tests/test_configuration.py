@@ -35,7 +35,7 @@ def test_print_config():
     args = '--once --apikey 4321 --postgres-host foobar --postgres-port 5432 --postgres-database snafu'.split()
     config = get_configuration(args)
     output = print_configuration(config)
-    assert output == 'interval=1200, port=8080, debug=False, once=True, apikey=4321, postgres_host=foobar, ' \
+    assert output == 'interval=1200, port=8080, debug=False, once=True, apikey=****, postgres_host=foobar, ' \
                      'postgres_port=5432, postgres_database=snafu, postgres_user=None, ' \
                      'postgres_password=None'
 
@@ -47,3 +47,9 @@ def test_redacted_config():
     assert output == 'interval=1200, port=8080, debug=False, once=False, apikey=None, ' \
                      'postgres_host=None, postgres_port=5432, postgres_database=covid19, postgres_user=foo, ' \
                      'postgres_password=************'
+    args = '--apikey 12345678901234567890123456789012'.split()
+    config = get_configuration(args)
+    output = print_configuration(config)
+    assert output == 'interval=1200, port=8080, debug=False, once=False, apikey=********************************, ' \
+                     'postgres_host=None, postgres_port=5432, postgres_database=covid19, postgres_user=None, ' \
+                     'postgres_password=None'
