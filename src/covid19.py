@@ -5,6 +5,8 @@ import requests
 from prometheus_client import start_http_server, Summary, Gauge
 from pimetrics.probe import APIProbe
 from src.pgconnector import CovidConnector, DBError
+from src.version import version
+from src.configuration import print_configuration
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
 GAUGES = {
@@ -315,10 +317,10 @@ class CoronaStats(APIProbe):
             try:
                 code = details['code']
                 confirmed = details['confirmed']
-                GAUGES['corona_confirmed_count'].labels(code, country).set(confirmed)
                 deaths = details['deaths']
-                GAUGES['corona_death_count'].labels(code, country).set(deaths)
                 recovered = details['recovered']
+                GAUGES['corona_confirmed_count'].labels(code, country).set(confirmed)
+                GAUGES['corona_death_count'].labels(code, country).set(deaths)
                 GAUGES['corona_recovered_count'].labels(code, country).set(recovered)
             except KeyError as err:
                 logging.warning(f'Could not find {err}')
@@ -359,6 +361,9 @@ class CoronaStats(APIProbe):
 def covid19(configuration):
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S',
                         level=logging.DEBUG if configuration.debug else logging.INFO)
+    logging.info(f'Starting covid19mon v{version}')
+    logging.info(f'Configuration: {print_configuration(configuration)}')
+
     start_http_server(configuration.port)
 
     dbconnector = None
