@@ -169,3 +169,21 @@ class CovidConnector(PostgresConnector):
             if conn:
                 conn.close()
         return rows
+
+    def get_first(self, country):
+        conn = entry = None
+        try:
+            conn = self.connect()
+            cur = conn.cursor()
+            cur.execute("""
+            SELECT min(time) FROM covid19 WHERE country_name = %s
+            """, (country,))
+            entry = cur.fetchone()
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.critical(f'Failed to get data: {error}')
+        finally:
+            if conn:
+                conn.close()
+        return entry[0] if entry else None
+

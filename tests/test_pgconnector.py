@@ -1,4 +1,5 @@
 import os
+import datetime
 import psycopg2
 from src.pgconnector import CovidConnector
 
@@ -62,3 +63,9 @@ def test_pgconnector():
     assert rows[1][3] == 6
     assert rows[1][4] == 4
     assert rows[1][5] == 2
+    connector.add('BE', 'Belgium', 0, 0, 0, datetime.datetime(2000, 1, 1))
+    entry = connector.get_first('Belgium')
+    assert entry.strftime('%Y-%m-%d') == '2000-01-01'
+    entry = connector.get_first('Not a country')
+    assert entry is None
+

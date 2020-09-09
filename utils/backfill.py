@@ -2,6 +2,7 @@ import os
 import datetime
 import requests
 import logging
+import pytz
 from src.covid19 import country_codes
 from src.pgconnector import CovidConnector
 
@@ -86,7 +87,8 @@ class HistoricalData:
     def get_historical_data(self, slug):
         output = dict()
         for entry in self._call(f'total/country/{slug}'):
-            output[datetime.datetime.strptime(entry['Date'], '%Y-%m-%dT%H:%M:%SZ')] = {
+            time = pytz.UTC.localize(datetime.datetime.strptime(entry['Date'], '%Y-%m-%dT%H:%M:%SZ'))
+            output[time] = {
                 'confirmed': entry['Confirmed'],
                 'death': entry['Deaths'],
                 'recovered': entry['Recovered'],
@@ -100,7 +102,8 @@ class HistoricalData:
             country = self.get_country(slug)
             country, code = self.map_country(country)
             logging.info(f'Processing {country}')
-            last_date = datetime.datetime(2020, 7, 2)  # covidconnector.get_earliest_date(self.get_country[slug][0])
+            # last_date = datetime.datetime(2020, 7, 2)
+            last_date = covidconnector.get_first(country)
             entries = self.get_historical_data(slug)
             times = sorted(entries.keys())
             if last_date:
@@ -122,7 +125,7 @@ if __name__ == '__main__':
     covid = CovidConnector(
         host='192.168.0.10',
         port='5432',
-        database='covid19',
+        database='test',
         user='postgres',
         password=os.getenv('COVID_PASSWORD')
     )
