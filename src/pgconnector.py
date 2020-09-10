@@ -100,12 +100,12 @@ class CovidConnector(PostgresConnector):
         }
 
     def _record_latest(self):
-        conn = entries = None
+        conn = None
         try:
             conn = self.connect()
             cur = conn.cursor()
             cur.execute("""
-                SELECT country_name, confirmed, death, recovered FROM covid19 AS a 
+                SELECT country_name, confirmed, death, recovered FROM covid19 AS a
                     WHERE a.time = (SELECT MAX(time) FROM covid19 AS b WHERE a.country_name = b.country_name)
                     ORDER BY time, country_name
             """)
