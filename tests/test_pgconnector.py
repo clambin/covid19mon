@@ -12,9 +12,13 @@ def get_dbenv():
         os.getenv('POSTGRES_PASSWORD')
 
 
-def test_pgconnector():
+def get_connector():
     host, port, database, user, password = get_dbenv()
-    connector = CovidConnector(host, port, database, user, password)
+    return CovidConnector(host, port, database, user, password)
+
+
+def test_pgconnector():
+    connector = get_connector()
     assert connector
     conn = connector.connect()
     assert conn
@@ -66,3 +70,6 @@ def test_pgconnector():
     assert entry.strftime('%Y-%m-%d') == '2000-01-01'
     entry = connector.get_first('Not a country')
     assert entry is None
+    connector2 = get_connector()
+    connector2._init_db()
+    assert connector2.reported == {'Belgium': {'confirmed': 6.0, 'deaths': 4.0, 'recovered': 2.0}}
