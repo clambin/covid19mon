@@ -125,7 +125,7 @@ if __name__ == '__main__':
         host='192.168.0.10',
         port='5432',
         database='test',
-        user='postgres',
+        user='cicd',
         password=os.getenv('COVID_PASSWORD')
     )
     server = HistoricalData()
