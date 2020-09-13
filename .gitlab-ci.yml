@@ -11,7 +11,7 @@ stages:
   - deploy
 
 variables:
-  VERSION: '0.10'
+  VERSION: '1.0'
   DOCKER_SWARM_SERVICE: 'monitor_covid19'
   POSTGRES_HOST: postgres
   POSTGRES_PORT: 5432
