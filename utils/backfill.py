@@ -124,7 +124,7 @@ if __name__ == '__main__':
     covid = CovidConnector(
         host='192.168.0.10',
         port='5432',
-        database='test',
+        database='cicd',
         user='cicd',
         password=os.getenv('COVID_PASSWORD')
     )
