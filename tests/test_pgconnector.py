@@ -1,5 +1,6 @@
 import os
 import datetime
+import psycopg2
 from src.pgconnector import CovidConnector
 
 
@@ -24,10 +25,14 @@ def test_pgconnector():
     assert conn
     cur = conn.cursor()
     assert cur
-    cur.execute("DELETE FROM covid19")
-    cur.close()
-    conn.commit()
-    conn.close()
+    try:
+        cur.execute("DELETE FROM covid19")
+        conn.commit()
+    except psycopg2.errors.UndefinedTable:
+        pass
+    finally:
+        cur.close()
+        conn.close()
     connector.add('BE', 'Belgium', 3, 2, 1)
     rows = connector.list()
     assert len(rows) == 1
