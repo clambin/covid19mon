@@ -55,7 +55,6 @@ class CovidConnector(PostgresConnector):
             """)
             curr.execute("""CREATE INDEX IF NOT EXISTS idx_covid_country ON covid19(country_name)""")
             curr.execute("""CREATE INDEX IF NOT EXISTS idx_covid_time ON covid19(time)""")
-            # curr.execute("""DROP VIEW IF EXISTS delta""")
             curr.execute("""
                 CREATE OR REPLACE VIEW delta AS
                     SELECT country_code, DATE_TRUNC('day', time) AS "day",
