@@ -51,11 +51,9 @@ class CovidConnector(PostgresConnector):
                 confirmed DOUBLE PRECISION,
                 death DOUBLE PRECISION,
                 recovered DOUBLE PRECISION
-                )
-            """)
-            curr.execute("""CREATE INDEX IF NOT EXISTS idx_covid_country ON covid19(country_name)""")
-            curr.execute("""CREATE INDEX IF NOT EXISTS idx_covid_time ON covid19(time)""")
-            curr.execute("""
+                );
+                CREATE INDEX IF NOT EXISTS idx_covid_country ON covid19(country_name);
+                CREATE INDEX IF NOT EXISTS idx_covid_time ON covid19(time);
                 CREATE OR REPLACE VIEW delta AS
                     SELECT country_code, DATE_TRUNC('day', time) AS "day",
                     MAX(confirmed)-LAG(MAX(confirmed)) OVER (ORDER BY country_code, DATE_TRUNC('day',time))
@@ -65,7 +63,7 @@ class CovidConnector(PostgresConnector):
                         AS "recovered"
                     FROM covid19
                     GROUP BY 1,2
-                    ORDER BY 1,2;
+                    ORDER BY 1,2
             """)
             curr.close()
             conn.commit()
