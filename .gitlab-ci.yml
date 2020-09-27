@@ -1,8 +1,8 @@
 include:
   - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/python-tests.yml'
-  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/docker-build-multiarch.yml'
-#  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/docker-swarm-deploy.yml'
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/k3s-docker-build-multiarch.yml'
   - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/github.yml'
+  - remote: 'https://gitlab.com/clambin/gitlab-ci-templates/raw/master/k3s-deploy.yml'
 
 stages:
   - unittest
