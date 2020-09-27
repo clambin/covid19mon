@@ -1,0 +1,41 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: covid19mon
+  labels:
+    app: covid19mon
+  annotations:
+    app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
+    app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: covid19mon
+  template:
+    metadata:
+      labels:
+        app: covid19mon
+    spec:
+      containers:
+        - name: covid19mon
+          image: __IMAGE__:__TAG__
+          env:
+          - name: apikey
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: apikey
+          - name: pgpassword
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: pgpassword
+                args:
+                  - '--apikey=$(apikey)'
+                  - '--postgres-host=postgres'
+                  - '--postgres-port=5432'
+                  - '--postgres-user=covid'
+                  - '--postgres-password=$(pgpassword)'
+                imagePullPolicy: Always
+              restartPolicy: Always
