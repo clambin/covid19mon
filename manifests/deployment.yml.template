@@ -22,19 +22,19 @@ spec:
           image: __IMAGE__:__TAG__
           imagePullPolicy: Always
           env:
-          - name: apikey
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: apikey
-          - name: pgpassword
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: pgpassword
-                args:
-                  - '--apikey=$(apikey)'
-                  - '--postgres-host=postgres'
-                  - '--postgres-port=5432'
-                  - '--postgres-user=covid'
-                  - '--postgres-password=$(pgpassword)'
+            - name: apikey
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: apikey
+            - name: pgpassword
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: pgpassword
+          args:
+            - '--apikey=$(apikey)'
+            - '--postgres-host=postgres'
+            - '--postgres-port=5432'
+            - '--postgres-user=covid'
+            - '--postgres-password=$(pgpassword)'
