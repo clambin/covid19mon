@@ -20,6 +20,7 @@ spec:
         app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
         app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
     spec:
+      restartPolicy: Always
       containers:
         - name: covid19mon
           image: __IMAGE__:__TAG__
@@ -30,14 +31,34 @@ spec:
                 secretKeyRef:
                   name: covid19mon
                   key: apikey
-            - name: pgpassword
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: pgpassword
+          - name: pg_host
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: pg_host
+          - name: pg_port
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: pg_port
+          - name: pg_database
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: pg_database
+          - name: pg_user
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: pg_user
+          - name: pg_password
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: pg_password
           args:
             - '--apikey=$(apikey)'
-            - '--postgres-host=postgres'
-            - '--postgres-port=5432'
-            - '--postgres-user=covid'
-            - '--postgres-password=$(pgpassword)'
+            - '--postgres-host=$(pg_host)'
+            - '--postgres-port=$(pg_port)'
+            - '--postgres-user=$(pg_user)'
+            - '--postgres-password=$(pg_password)'
