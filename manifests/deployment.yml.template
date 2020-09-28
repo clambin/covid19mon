@@ -16,10 +16,9 @@ spec:
     metadata:
       labels:
         app: covid19mon
-    annotations:
-      app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
-      app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
-
+      annotations:
+        app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
+        app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
     spec:
       containers:
         - name: covid19mon
