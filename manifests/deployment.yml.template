@@ -26,11 +26,11 @@ spec:
           image: __IMAGE__:__TAG__
           imagePullPolicy: Always
           env:
-            - name: apikey
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: apikey
+          - name: apikey
+            valueFrom:
+              secretKeyRef:
+                name: covid19mon
+                key: apikey
           - name: pg_host
             valueFrom:
               secretKeyRef:
