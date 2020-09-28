@@ -20,6 +20,7 @@ spec:
       containers:
         - name: covid19mon
           image: __IMAGE__:__TAG__
+          imagePullPolicy: Always
           env:
           - name: apikey
             valueFrom:
@@ -37,5 +38,3 @@ spec:
                   - '--postgres-port=5432'
                   - '--postgres-user=covid'
                   - '--postgres-password=$(pgpassword)'
-                imagePullPolicy: Always
-              restartPolicy: Always
