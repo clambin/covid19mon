@@ -12,12 +12,12 @@ stages:
 
 variables:
   VERSION: '1.0'
-  DOCKER_SWARM_SERVICE: 'monitor_covid19'
   POSTGRES_HOST: postgres
   POSTGRES_PORT: 5432
   POSTGRES_DB: covid19
   POSTGRES_USER: covid
   POSTGRES_PASSWORD: example
+  DEPLOYMENT: manifests/deployment.yml
 
 # Don't run for new tags
 workflow:
