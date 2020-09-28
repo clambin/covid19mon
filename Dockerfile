@@ -7,7 +7,7 @@ EXPOSE 8080
 RUN groupadd -g 1000 abc && \
     useradd -u 1000 -g abc abc && \
     pip install --upgrade pip
-RUN if [ "$(uname -n)" == "armv7l" ]; then \
+RUN if [ "$(uname -m)" = "armv7l" ]; then \
         echo "[global]" >> /etc/pip.conf && \
         echo "extra-index-url=https://www.piwheels.org/simple" >> /etc/pip.conf && \
         apt-get update && \
