@@ -60,5 +60,6 @@ spec:
             - '--apikey=$(apikey)'
             - '--postgres-host=$(pg_host)'
             - '--postgres-port=$(pg_port)'
+            - '--postgres-database=$(pg_database)'
             - '--postgres-user=$(pg_user)'
             - '--postgres-password=$(pg_password)'
