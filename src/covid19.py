@@ -331,9 +331,11 @@ class CoronaStats(APIProbe):
         def nonetozero(val):
             return val if val is not None else 0
         output = {}
-        if stats := self.call('v1/stats'):
+        stats = self.call('v1/stats')
+        if stats:
             for entry in stats['data']['covid19Stats']:
-                if (country := entry['country']) not in country_codes:
+                country = entry['country']
+                if country not in country_codes:
                     if country not in self.bad_countries:
                         logging.warning(f'Could not find country code for "{country}". Skipping ...')
                         self.bad_countries.append(country)
