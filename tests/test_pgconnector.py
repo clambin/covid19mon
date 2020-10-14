@@ -1,7 +1,7 @@
 import os
 import datetime
 import psycopg2
-from src.pgconnector import CovidConnector
+from src.covid19 import CovidConnector
 
 
 def get_dbenv():

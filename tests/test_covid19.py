@@ -1,8 +1,7 @@
 import json
 import os
-from src.covid19 import CoronaStats, covid19
+from src.covid19 import CoronaStats, covid19, CovidConnector
 from src.configuration import get_configuration
-from src.pgconnector import CovidConnector
 from tests.test_pgconnector import get_dbenv
 
 

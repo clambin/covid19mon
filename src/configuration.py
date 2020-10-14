@@ -34,15 +34,15 @@ def get_configuration(args=None):
                         help='Measure once and then terminate')
     parser.add_argument('--apikey',
                         help='API Key')
-    parser.add_argument('--postgres-host', required=True,
+    parser.add_argument('--postgres-host',
                         help='Postgres DB host')
     parser.add_argument('--postgres-port', default=default_pg_port,
                         help=f'Postgres DB port (default: {default_pg_port})')
     parser.add_argument('--postgres-database', default=default_pg_database,
                         help=f'Postgres DB database name (default: {default_pg_database})')
-    parser.add_argument('--postgres-user', required=True,
+    parser.add_argument('--postgres-user',
                         help='Postgres DB user name')
-    parser.add_argument('--postgres-password', required=True,
+    parser.add_argument('--postgres-password',
                         help='Postgres DB password')
     return parser.parse_args(args)
 

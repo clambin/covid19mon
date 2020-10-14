@@ -3,7 +3,7 @@ import time
 import requests
 import psycopg2
 from datetime import datetime
-from prometheus_client import start_http_server, Summary, Gauge
+from prometheus_client import start_http_server, Summary
 from pimetrics.probe import APIProbe
 from src.pgconnector import PostgresConnector, DBError
 from src.version import version
@@ -12,14 +12,6 @@ from src.population import PopulationProbe, PopulationConnector
 from src.countries import country_codes
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
-GAUGES = {
-    'corona_confirmed_count':
-        Gauge('corona_confirmed_count', 'Number of confirmed cases', ['country_code', 'country_name']),
-    'corona_death_count':
-        Gauge('corona_death_count', 'Number of deaths', ['country_code', 'country_name']),
-    'corona_recovered_count':
-        Gauge('corona_recovered_count', 'Number of recoveries', ['country_code', 'country_name']),
-}
 
 
 class CovidConnector(PostgresConnector):
@@ -229,15 +221,7 @@ class CoronaStats(APIProbe):
             return result
 
     def report(self, output):
-        for country, details in output.items():
-            code = details['code']
-            confirmed = details['confirmed']
-            deaths = details['deaths']
-            recovered = details['recovered']
-            GAUGES['corona_confirmed_count'].labels(code, country).set(confirmed)
-            GAUGES['corona_death_count'].labels(code, country).set(deaths)
-            GAUGES['corona_recovered_count'].labels(code, country).set(recovered)
-        if output and self.dbconnector:
+        if self.dbconnector:
             try:
                 self.dbconnector.addmany(output)
             except DBError as err:
@@ -278,16 +262,16 @@ def covid19(configuration):
 
     start_http_server(configuration.port)
 
-    populationconn = PopulationConnector(
-        host=configuration.postgres_host,
-        port=configuration.postgres_port,
-        database=configuration.postgres_database,
-        user=configuration.postgres_user,
-        password=configuration.postgres_password
-    )
-
-    probe = PopulationProbe(configuration.apikey, populationconn)
-    probe.run()
+    if configuration.postgres_host:
+        populationconn = PopulationConnector(
+            host=configuration.postgres_host,
+            port=configuration.postgres_port,
+            database=configuration.postgres_database,
+            user=configuration.postgres_user,
+            password=configuration.postgres_password
+        )
+        probe = PopulationProbe(configuration.apikey, populationconn)
+        probe.run()
 
     covidconn = CovidConnector(
         host=configuration.postgres_host,
