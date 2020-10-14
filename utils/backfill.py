@@ -4,9 +4,9 @@ import requests
 import logging
 import pytz
 from src.covid19 import country_codes
-from src.pgconnector import CovidConnector
+from src.covid19 import CovidConnector
 
-# You expect country names & codes would be an easy standard but noooooo ...
+# You'd expect country names & codes would be an easy standard but noooooo ...
 country_mapping = {
     'Wallis and Futuna Islands': 'Wallis and Futuna',
     'Republic of Kosovo': 'Kosovo',

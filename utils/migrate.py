@@ -1,12 +1,16 @@
 import logging
 import os
 import psycopg2
-from src.pgconnector import PostgresConnector, CovidConnector
+from src.pgconnector import PostgresConnector
+from src.covid19 import CovidConnector
 
 
 class TSDBConnector(PostgresConnector):
     def __init__(self, host, port, database, user, password):
         super().__init__(host, port, database, user, password)
+
+    def _init_db(self):
+        pass
 
     def migrate_data(self, target):
         added = 0
