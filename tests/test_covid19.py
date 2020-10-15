@@ -1,10 +1,5 @@
 import json
-import os
-from src.covid19 import covid19
 from src.covidprobe import CovidProbe
-from src.covidpgconnector import CovidPGConnector
-from src.configuration import get_configuration
-from tests.test_pgconnector import get_dbenv
 
 
 class CovidTestProbe(CovidProbe):
@@ -43,4 +38,3 @@ def test_bad_covidstats():
     covid.run()
     measured = covid.measured()
     assert not measured
-
