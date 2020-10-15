@@ -13,6 +13,7 @@ class PostgresConnector(ABC):
         self.database = database
         self.user = user
         self.password = password
+        self.first = True
 
     def connect(self):
         return psycopg2.connect(
@@ -23,6 +24,15 @@ class PostgresConnector(ABC):
             password=self.password
         )
 
-    @abstractmethod
     def _init_db(self):
+        if self.first:
+            self._build_db()
+            self.first = False
+
+    @abstractmethod
+    def _build_db(self):
         """Build the necessary DB elements"""
+
+    @abstractmethod
+    def _drop_db(self):
+        """Remove the necessary DB elements"""
