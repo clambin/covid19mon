@@ -15,29 +15,18 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 11,
-  "iteration": 1588347500484,
+  "id": 14,
+  "iteration": 1602764660449,
   "links": [],
   "panels": [
-    {
-      "collapsed": false,
-      "datasource": null,
-      "gridPos": {
-        "h": 1,
-        "w": 24,
-        "x": 0,
-        "y": 0
-      },
-      "id": 16,
-      "panels": [],
-      "title": "Country",
-      "type": "row"
-    },
     {
       "aliasColors": {
         "Active": "#8AB8FF",
         "Death": "#FF7383",
-        "Recovered": "#96D98D"
+        "Recovered": "#96D98D",
+        "active": "#96D98D",
+        "death": "#FF7383",
+        "recovered": "#8AB8FF"
       },
       "breakPoint": "50%",
       "cacheTimeout": null,
@@ -45,49 +34,82 @@
         "label": "Others",
         "threshold": 0
       },
-      "datasource": null,
-      "decimals": null,
+      "datasource": "PostgreSQL",
+      "decimals": 1,
       "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fontSize": "80%",
       "format": "short",
       "gridPos": {
         "h": 8,
-        "w": 5,
+        "w": 6,
         "x": 0,
-        "y": 1
+        "y": 0
       },
       "id": 6,
       "interval": null,
       "legend": {
         "header": "",
         "percentage": true,
+        "percentageDecimals": 0,
         "show": true,
         "values": true
       },
-      "legendType": "Under graph",
-      "links": [],
+      "legendType": "Right side",
+      "links": [
+        {
+          "targetBlank": true,
+          "title": "rapids-i",
+          "url": "https://rapidapi.com/KishCom/api/covid-19-coronavirus-statistics"
+        }
+      ],
       "maxDataPoints": 3,
       "nullPointMode": "connected",
       "pieType": "pie",
-      "strokeWidth": 1,
+      "strokeWidth": "1",
       "targets": [
         {
-          "expr": "corona_death_count{name=\"$country\"}",
-          "interval": "",
-          "legendFormat": "Death",
-          "refId": "A"
-        },
-        {
-          "expr": "corona_recovered_count{name=\"$country\"}",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "B"
-        },
-        {
-          "expr": "corona_confirmed_count{name=\"$country\"}-corona_death_count{name=\"$country\"}-corona_recovered_count{name=\"$country\"}",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "C"
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  death,\n  recovered,\n  confirmed-death-recovered \"active\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\") AND\n  country_name = '$country'\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "text",
+              "name": "",
+              "params": [
+                "country_name",
+                "=",
+                "'$country'"
+              ],
+              "type": "expression"
+            }
+          ]
         }
       ],
       "timeFrom": null,
@@ -97,25 +119,186 @@
       "valueName": "current"
     },
     {
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": null,
+            "filterable": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "time"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 145
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "confirmed"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 86
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "death"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 102
+              }
+            ]
+          },
+          {
+            "matcher": {
+              "id": "byName",
+              "options": "recovered"
+            },
+            "properties": [
+              {
+                "id": "custom.width",
+                "value": 118
+              }
+            ]
+          }
+        ]
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "id": 20,
+      "options": {
+        "showHeader": true,
+        "sortBy": [
+          {
+            "desc": true,
+            "displayName": "time"
+          }
+        ]
+      },
+      "pluginVersion": "7.2.1",
+      "targets": [
+        {
+          "format": "table",
+          "group": [
+            {
+              "params": [
+                "1d",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeGroupAlias(\"time\",1d),\n  confirmed - lag(confirmed) OVER (ORDER BY $__timeGroup(\"time\",1d)) as \"confirmed\",\n  death - lag(death) OVER (ORDER BY $__timeGroup(\"time\",1d)) as \"death\",\n  recovered - lag(recovered) OVER (ORDER BY $__timeGroup(\"time\",1d)) as \"recovered\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\") AND \n  country_name = '$country' \nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Changes",
+      "type": "table"
+    },
+    {
       "aliasColors": {
         "Active": "light-blue",
         "Deaths": "light-red",
-        "Recovered": "light-green"
+        "Recovered": "light-green",
+        "active": "light-green",
+        "death": "light-red",
+        "recovered": "light-blue"
       },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 3,
       "gridPos": {
         "h": 8,
-        "w": 7,
-        "x": 5,
-        "y": 1
+        "w": 12,
+        "x": 12,
+        "y": 0
       },
       "hiddenSeries": false,
-      "id": 7,
+      "id": 18,
       "legend": {
         "avg": false,
         "current": false,
@@ -127,12 +310,12 @@
       },
       "lines": true,
       "linewidth": 1,
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
-      "percentage": false,
-      "pluginVersion": "6.7.3",
+      "percentage": true,
+      "pluginVersion": "7.2.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -142,22 +325,64 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(corona_confirmed_count{name=~\"$country\"}-corona_death_count{name=~\"$country\"}-corona_recovered_count{name=~\"$country\"})/corona_confirmed_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "D"
-        },
-        {
-          "expr": "corona_death_count{name=~\"$country\"}/corona_confirmed_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Deaths",
-          "refId": "B"
-        },
-        {
-          "expr": "corona_recovered_count{name=~\"$country\"}/corona_confirmed_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "C"
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  confirmed-death-recovered AS \"active\",\n  death,\n  recovered\nFROM covid19\nWHERE\n  $__timeFilter(\"time\") AND\n  country_name = '$country'\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed-death-recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "active"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "text",
+              "name": "",
+              "params": [
+                "country_name",
+                "=",
+                "'$country'"
+              ],
+              "type": "expression"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -181,114 +406,10 @@
       "yaxes": [
         {
           "decimals": null,
-          "format": "percentunit",
-          "label": "",
-          "logBase": 1,
-          "max": "1",
-          "min": "0",
-          "show": true
-        },
-        {
           "format": "short",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": false
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
-    },
-    {
-      "aliasColors": {
-        "Active": "light-blue",
-        "Deaths": "light-red",
-        "Recovered": "light-green"
-      },
-      "bars": false,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": null,
-      "fill": 1,
-      "fillGradient": 3,
-      "gridPos": {
-        "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 1
-      },
-      "hiddenSeries": false,
-      "id": 2,
-      "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
-        "show": true,
-        "total": false,
-        "values": false
-      },
-      "lines": true,
-      "linewidth": 1,
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
-      "targets": [
-        {
-          "expr": "corona_confirmed_count{name=~\"$country\"}-corona_death_count{name=~\"$country\"}-corona_recovered_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "D"
-        },
-        {
-          "expr": "corona_death_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Deaths",
-          "refId": "B"
-        },
-        {
-          "expr": "corona_recovered_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "C"
-        }
-      ],
-      "thresholds": [],
-      "timeFrom": null,
-      "timeRegions": [],
-      "timeShift": null,
-      "title": "Cases (stacked)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
+          "max": "100",
           "min": "0",
           "show": true
         },
@@ -310,39 +431,48 @@
       "aliasColors": {
         "Confirmed": "light-orange",
         "Deaths": "light-red",
-        "Recovered": "light-green"
+        "Recovered": "light-green",
+        "confirmed": "light-yellow",
+        "death": "light-red",
+        "recovered": "light-blue"
       },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 3,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 9
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 3,
       "legend": {
         "avg": false,
-        "current": false,
+        "current": true,
         "max": false,
         "min": false,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.2.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -352,23 +482,120 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "delta(corona_confirmed_count{name=~\"$country\"}[1d])",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Confirmed",
-          "refId": "A"
-        },
-        {
-          "expr": "delta(corona_death_count{name=~\"$country\"}[1d])",
-          "interval": "",
-          "legendFormat": "Deaths",
-          "refId": "B"
-        },
-        {
-          "expr": "delta(corona_recovered_count{name=~\"$country\"}[1d])",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "C"
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1d",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(\"time\",1d),\n  avg(death) - lag(avg(death)) OVER (ORDER BY $__timeGroup(\"time\",1d)) AS \"death\",\n  avg(recovered) - lag(avg(recovered)) OVER (ORDER BY $__timeGroup(\"time\",1d)) AS \"recovered\",\n  avg(confirmed) - lag(avg(confirmed)) OVER (ORDER BY $__timeGroup(\"time\",1d)) AS \"confirmed\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\") AND\n  country_name = '$country'\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "text",
+              "name": "",
+              "params": [
+                "country_name",
+                "=",
+                "'$country'"
+              ],
+              "type": "expression"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -414,20 +641,30 @@
     },
     {
       "aliasColors": {
+        "Active": "light-blue",
         "Deaths": "light-red",
-        "Recovered": "light-green"
+        "Recovered": "light-green",
+        "active": "light-green",
+        "death": "light-red",
+        "recovered": "light-blue"
       },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 3,
       "gridPos": {
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 9
+        "y": 8
       },
       "hiddenSeries": false,
       "id": 17,
@@ -442,11 +679,12 @@
       },
       "lines": true,
       "linewidth": 1,
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
+      "pluginVersion": "7.2.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -456,29 +694,71 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "corona_death_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Deaths",
-          "refId": "B"
-        },
-        {
-          "expr": "corona_recovered_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "C"
-        },
-        {
-          "expr": "corona_confirmed_count{name=~\"$country\"}-corona_death_count{name=~\"$country\"}-corona_recovered_count{name=~\"$country\"}",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "D"
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  death,\n  recovered,\n  confirmed-death-recovered AS \"active\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\") AND\n  country_name = '$country'\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "confirmed-death-recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "active"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            },
+            {
+              "datatype": "text",
+              "name": "",
+              "params": [
+                "country_name",
+                "=",
+                "'$country'"
+              ],
+              "type": "expression"
+            }
+          ]
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeRegions": [],
       "timeShift": null,
-      "title": "Cases (stacked; log10)",
+      "title": "Cases (stacked)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -494,10 +774,128 @@
       },
       "yaxes": [
         {
-          "decimals": null,
           "format": "short",
           "label": null,
-          "logBase": 10,
+          "logBase": 1,
+          "max": null,
+          "min": "0",
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "hiddenSeries": false,
+      "id": 22,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.2.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  a.country_name AS \"Country\",\n  (a.confirmed - a.death - a.recovered) / b.population AS \"confirmed\"\nFROM covid19 a, population b\nWHERE\n  a.country_code in ('BE', 'US', 'NL', 'MY', 'DE', 'FR', 'IT', 'ES') AND\n  a.country_code = b.country_code AND\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Active vs. total population",
+      "tooltip": {
+        "shared": false,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": 2,
+          "format": "percentunit",
+          "label": null,
+          "logBase": 1,
           "max": null,
           "min": null,
           "show": true
@@ -508,7 +906,126 @@
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fill": 1,
+      "fillGradient": 0,
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "hiddenSeries": false,
+      "id": 23,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "rightSide": true,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "options": {
+        "alertThreshold": true
+      },
+      "percentage": false,
+      "pluginVersion": "7.2.1",
+      "pointradius": 2,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  a.country_name AS \"Country\",\n  a.death / b.population AS \"mortality\"\nFROM covid19 a, population b\nWHERE\n  a.country_code in ('BE', 'US', 'NL', 'MY', 'DE', 'FR', 'IT', 'ES') AND\n  a.country_code = b.country_code AND\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeRegions": [],
+      "timeShift": null,
+      "title": "Mortality vs. total population",
+      "tooltip": {
+        "shared": false,
+        "sort": 2,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "decimals": null,
+          "format": "percentunit",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
         }
       ],
       "yaxis": {
@@ -518,7 +1035,7 @@
     }
   ],
   "refresh": "1h",
-  "schemaVersion": 22,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
@@ -526,19 +1043,19 @@
       {
         "allValue": null,
         "current": {
+          "selected": false,
           "text": "Belgium",
           "value": "Belgium"
         },
-        "datasource": "Prometheus",
-        "definition": "label_values(name)",
+        "datasource": "PostgreSQL",
+        "definition": "select distinct country_name from covid19",
         "hide": 0,
         "includeAll": false,
-        "index": -1,
         "label": null,
         "multi": false,
         "name": "country",
         "options": [],
-        "query": "label_values(name)",
+        "query": "select distinct country_name from covid19",
         "refresh": 2,
         "regex": "",
         "skipUrlSync": false,
@@ -552,12 +1069,11 @@
     ]
   },
   "time": {
-    "from": "now-14d",
+    "from": "now-90d",
     "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
-      "5s",
       "10s",
       "30s",
       "1m",
@@ -570,10 +1086,7 @@
     ]
   },
   "timezone": "",
-  "title": "Corona",
-  "uid": "clfpKnigk",
-  "variables": {
-    "list": []
-  },
-  "version": 23
+  "title": "Covid19",
+  "uid": "jQXLLIzRz",
+  "version": 19
 }

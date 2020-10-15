@@ -15,211 +15,35 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 12,
+  "id": 16,
   "links": [],
   "panels": [
     {
-      "circleMaxSize": 30,
-      "circleMinSize": 2,
-      "colors": [
-        "#73BF69",
-        "rgba(237, 129, 40, 0.89)",
-        "#F2495C",
-        "#B877D9"
-      ],
-      "datasource": null,
-      "decimals": 0,
-      "esMetric": "Count",
-      "gridPos": {
-        "h": 13,
-        "w": 12,
-        "x": 0,
-        "y": 0
-      },
-      "hideEmpty": false,
-      "hideZero": false,
-      "id": 12,
-      "initialZoom": "2",
-      "jsonUrl": "http://192.168.0.184:5000/countries/",
-      "jsonpCallback": "get",
-      "jsonpUrl": "http://localhost:5000/countries",
-      "locationData": "countries",
-      "mapCenter": "(0°, 0°)",
-      "mapCenterLatitude": 0,
-      "mapCenterLongitude": 0,
-      "maxDataPoints": 1,
-      "mouseWheelZoom": true,
-      "showLegend": true,
-      "stickyLabels": false,
-      "tableQueryOptions": {
-        "geohashField": "geohash",
-        "latitudeField": "latitude",
-        "longitudeField": "longitude",
-        "metricField": "metric",
-        "queryType": "geohash"
-      },
-      "targets": [
-        {
-          "expr": "sum by (country) (corona_confirmed_count - corona_death_count - corona_recovered_count)",
-          "format": "time_series",
-          "hide": false,
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{country}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "50000,100000,500000",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "World Map (active)",
-      "type": "grafana-worldmap-panel",
-      "unitPlural": "",
-      "unitSingle": "",
-      "unitSingular": "",
-      "valueName": "current"
-    },
-    {
-      "circleMaxSize": 30,
-      "circleMinSize": 2,
-      "colors": [
-        "#73BF69",
-        "rgba(237, 129, 40, 0.89)",
-        "#F2495C",
-        "#B877D9"
-      ],
-      "datasource": null,
-      "decimals": 0,
-      "esMetric": "Count",
-      "gridPos": {
-        "h": 13,
-        "w": 12,
-        "x": 12,
-        "y": 0
-      },
-      "hideEmpty": false,
-      "hideZero": false,
-      "id": 13,
-      "initialZoom": "2",
-      "jsonUrl": "http://192.168.0.184:5000/countries/",
-      "jsonpCallback": "get",
-      "jsonpUrl": "http://localhost:5000/countries",
-      "locationData": "countries",
-      "mapCenter": "(0°, 0°)",
-      "mapCenterLatitude": 0,
-      "mapCenterLongitude": 0,
-      "maxDataPoints": 1,
-      "mouseWheelZoom": true,
-      "showLegend": true,
-      "stickyLabels": false,
-      "tableQueryOptions": {
-        "geohashField": "geohash",
-        "latitudeField": "latitude",
-        "longitudeField": "longitude",
-        "metricField": "metric",
-        "queryType": "geohash"
-      },
-      "targets": [
-        {
-          "expr": "sum by (country) (corona_confirmed_count) ",
-          "format": "time_series",
-          "instant": true,
-          "interval": "",
-          "legendFormat": "{{country}}",
-          "refId": "A"
-        }
-      ],
-      "thresholds": "50000,100000,500000",
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "World Map (total)",
-      "type": "grafana-worldmap-panel",
-      "unitPlural": "",
-      "unitSingle": "",
-      "unitSingular": "",
-      "valueName": "current"
-    },
-    {
-      "aliasColors": {
-        "Active": "#8AB8FF",
-        "Death": "#FF7383",
-        "Recovered": "#96D98D"
-      },
-      "breakPoint": "50%",
-      "cacheTimeout": null,
-      "combine": {
-        "label": "Others",
-        "threshold": 0
-      },
-      "datasource": null,
-      "fontSize": "80%",
-      "format": "short",
-      "gridPos": {
-        "h": 8,
-        "w": 5,
-        "x": 0,
-        "y": 13
-      },
-      "id": 15,
-      "interval": null,
-      "legend": {
-        "percentage": true,
-        "show": true,
-        "values": true
-      },
-      "legendType": "Under graph",
-      "links": [],
-      "maxDataPoints": 3,
-      "nullPointMode": "connected",
-      "pieType": "pie",
-      "strokeWidth": 1,
-      "targets": [
-        {
-          "expr": "sum(corona_death_count)",
-          "interval": "",
-          "legendFormat": "Death",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(corona_recovered_count)",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(corona_confirmed_count)-sum(corona_death_count)-sum(corona_recovered_count)",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "C"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Ratio",
-      "type": "grafana-piechart-panel",
-      "valueName": "current"
-    },
-    {
       "aliasColors": {
         "Active": "light-blue",
-        "Death": "light-red",
+        "Deaths": "light-red",
         "Recovered": "light-green"
       },
       "bars": false,
-      "cacheTimeout": null,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 3,
       "gridPos": {
         "h": 8,
         "w": 7,
-        "x": 5,
-        "y": 13
+        "x": 0,
+        "y": 0
       },
       "hiddenSeries": false,
-      "id": 16,
+      "id": 31,
       "legend": {
         "avg": false,
         "current": false,
@@ -231,12 +55,12 @@
       },
       "lines": true,
       "linewidth": 1,
-      "links": [],
-      "nullPointMode": "null",
+      "nullPointMode": "connected",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
-      "percentage": false,
+      "percentage": true,
+      "pluginVersion": "7.2.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -246,22 +70,92 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "(sum(corona_confirmed_count)-sum(corona_death_count)-sum(corona_recovered_count))/sum(corona_confirmed_count)",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "C"
-        },
-        {
-          "expr": "sum(corona_death_count)/sum(corona_confirmed_count)",
-          "interval": "",
-          "legendFormat": "Death",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(corona_recovered_count)/sum(corona_confirmed_count)",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "B"
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": false,
+          "rawSql": "SELECT\n  $__timeGroupAlias(\"time\",$__interval),\n  sum(confirmed-death-recovered) AS \"active\",\n  sum(death) AS \"death\",\n  sum(recovered) AS \"recovered\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed-death-recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "sum"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "active"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "sum"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "sum"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -284,11 +178,10 @@
       },
       "yaxes": [
         {
-          "decimals": null,
-          "format": "percentunit",
+          "format": "short",
           "label": null,
           "logBase": 1,
-          "max": "1",
+          "max": null,
           "min": "0",
           "show": true
         },
@@ -298,7 +191,7 @@
           "logBase": 1,
           "max": null,
           "min": null,
-          "show": false
+          "show": true
         }
       ],
       "yaxis": {
@@ -308,109 +201,95 @@
     },
     {
       "aliasColors": {
-        "Active": "light-blue",
-        "Death": "light-red",
-        "Recovered": "light-green"
+        "Active": "#8AB8FF",
+        "Death": "#FF7383",
+        "Recovered": "#96D98D"
       },
-      "bars": false,
+      "breakPoint": "50%",
       "cacheTimeout": null,
-      "dashLength": 10,
-      "dashes": false,
-      "datasource": null,
-      "fill": 1,
-      "fillGradient": 3,
+      "combine": {
+        "label": "Others",
+        "threshold": 0
+      },
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fontSize": "80%",
+      "format": "short",
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
-        "y": 13
+        "w": 5,
+        "x": 7,
+        "y": 0
       },
-      "hiddenSeries": false,
-      "id": 17,
+      "id": 15,
+      "interval": null,
       "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
+        "percentage": true,
         "show": true,
-        "total": false,
-        "values": false
+        "values": true
       },
-      "lines": true,
-      "linewidth": 1,
+      "legendType": "Under graph",
       "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "strokeWidth": 1,
       "targets": [
         {
-          "expr": "sum(corona_confirmed_count)-sum(corona_death_count)-sum(corona_recovered_count)",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "C"
-        },
-        {
-          "expr": "sum(corona_death_count)",
-          "interval": "",
-          "legendFormat": "Death",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(corona_recovered_count)",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "B"
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  confirmed-death-recovered \"active\",\n  death,\n  recovered\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "column"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "thresholds": [],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
-      "title": "Cases (stacked)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
-      },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
-      },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        },
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
-        }
-      ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "title": "Ratio",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
     },
     {
       "aliasColors": {
@@ -421,34 +300,40 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
       "fill": 1,
       "fillGradient": 3,
       "gridPos": {
         "h": 8,
         "w": 12,
-        "x": 0,
-        "y": 21
+        "x": 12,
+        "y": 0
       },
       "hiddenSeries": false,
       "id": 20,
       "legend": {
         "avg": false,
-        "current": false,
+        "current": true,
         "max": false,
         "min": false,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
       "nullPointMode": "null",
       "options": {
-        "dataLinks": []
+        "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "6.7.2",
+      "pluginVersion": "7.2.1",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -458,24 +343,110 @@
       "steppedLine": false,
       "targets": [
         {
-          "expr": "sum(delta(corona_confirmed_count[1d]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Confirmed",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(delta(corona_death_count[1d]))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "Deaths",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(delta(corona_recovered_count[1d]))",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "C"
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1d",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  day as \"time\",\n  sum(confirmed) as \"confirmed\",\n  sum(death) as \"death\",\n  sum(recovered) as \"recovered\"\nFROM delta\nWHERE\n  $__timeFilter(\"day\")\nGROUP BY 1\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "sum"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "death"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "sum"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "recovered"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "sum"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
       "thresholds": [],
@@ -502,7 +473,7 @@
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -520,121 +491,695 @@
       }
     },
     {
-      "aliasColors": {
-        "Active": "light-blue",
-        "Death": "light-red",
-        "Recovered": "light-green"
-      },
-      "bars": false,
-      "cacheTimeout": null,
-      "dashLength": 10,
-      "dashes": false,
+      "collapsed": false,
       "datasource": null,
-      "fill": 1,
-      "fillGradient": 3,
       "gridPos": {
-        "h": 8,
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 8
+      },
+      "id": 29,
+      "panels": [],
+      "title": "Data",
+      "type": "row"
+    },
+    {
+      "aliasColors": {
+        "Active": "#8AB8FF",
+        "Death": "#FF7383",
+        "Recovered": "#96D98D"
+      },
+      "breakPoint": "25%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": ".01"
+      },
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "fontSize": "80%",
+      "format": "short",
+      "gridPos": {
+        "h": 13,
         "w": 12,
-        "x": 12,
-        "y": 21
+        "x": 0,
+        "y": 9
       },
-      "hiddenSeries": false,
-      "id": 21,
+      "id": 24,
+      "interval": "",
       "legend": {
-        "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
+        "percentage": true,
         "show": true,
-        "total": false,
-        "values": false
+        "sort": "current",
+        "sortDesc": true,
+        "values": true
       },
-      "lines": true,
-      "linewidth": 1,
+      "legendType": "Right side",
       "links": [],
-      "nullPointMode": "null",
-      "options": {
-        "dataLinks": []
-      },
-      "percentage": false,
-      "pointradius": 2,
-      "points": false,
-      "renderer": "flot",
-      "seriesOverrides": [],
-      "spaceLength": 10,
-      "stack": true,
-      "steppedLine": false,
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "strokeWidth": 1,
       "targets": [
         {
-          "expr": "sum(corona_death_count)",
-          "interval": "",
-          "legendFormat": "Death",
-          "refId": "A"
-        },
-        {
-          "expr": "sum(corona_recovered_count)",
-          "interval": "",
-          "legendFormat": "Recovered",
-          "refId": "B"
-        },
-        {
-          "expr": "sum(corona_confirmed_count)-sum(corona_death_count)-sum(corona_recovered_count)",
-          "interval": "",
-          "legendFormat": "Active",
-          "refId": "C"
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "$__interval",
+                "none"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "country_name"
+              ],
+              "type": "column"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  country_name,\n  confirmed\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "max"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "alias"
+              }
+            ],
+            [
+              {
+                "params": [
+                  "country_name"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "country_name"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "thresholds": [],
       "timeFrom": null,
-      "timeRegions": [],
       "timeShift": null,
-      "title": "Cases (stacked; log10)",
-      "tooltip": {
-        "shared": true,
-        "sort": 0,
-        "value_type": "individual"
+      "title": "Confirmed cases by country",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "aliasColors": {
+        "Active": "#8AB8FF",
+        "Death": "#FF7383",
+        "Recovered": "#96D98D"
       },
-      "type": "graph",
-      "xaxis": {
-        "buckets": null,
-        "mode": "time",
-        "name": null,
-        "show": true,
-        "values": []
+      "breakPoint": "25%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": ".01"
       },
-      "yaxes": [
-        {
-          "format": "short",
-          "label": null,
-          "logBase": 10,
-          "max": null,
-          "min": null,
-          "show": true
+      "datasource": "PostgreSQL",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
         },
+        "overrides": []
+      },
+      "fontSize": "80%",
+      "format": "short",
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 9
+      },
+      "id": 23,
+      "interval": "",
+      "legend": {
+        "percentage": true,
+        "show": true,
+        "sort": "current",
+        "sortDesc": true,
+        "values": true
+      },
+      "legendType": "Right side",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "strokeWidth": 1,
+      "targets": [
         {
-          "format": "short",
-          "label": null,
-          "logBase": 1,
-          "max": null,
-          "min": null,
-          "show": true
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  country_name,\n  death\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
         }
       ],
-      "yaxis": {
-        "align": false,
-        "alignLevel": null
-      }
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Death toll by country",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "collapsed": false,
+      "datasource": null,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      },
+      "id": 27,
+      "panels": [],
+      "title": "Maps",
+      "type": "row"
+    },
+    {
+      "circleMaxSize": 30,
+      "circleMinSize": "1",
+      "colors": [
+        "#73BF69",
+        "rgba(237, 129, 40, 0.89)",
+        "#F2495C",
+        "#B877D9"
+      ],
+      "datasource": "PostgreSQL",
+      "decimals": 0,
+      "esMetric": "Count",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 13,
+      "initialZoom": "1",
+      "jsonUrl": "http://192.168.0.184:5000/countries/",
+      "jsonpCallback": "get",
+      "jsonpUrl": "http://localhost:5000/countries",
+      "locationData": "countries",
+      "mapCenter": "(0°, 0°)",
+      "mapCenterLatitude": 0,
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "showLegend": true,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "geohash",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "metric",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  country_code,\n  confirmed\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "50000,100000,500000",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "World Map - Total Cases",
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "",
+      "unitSingle": "",
+      "unitSingular": "",
+      "valueName": "current"
+    },
+    {
+      "circleMaxSize": 30,
+      "circleMinSize": "1",
+      "colors": [
+        "#73BF69",
+        "rgba(237, 129, 40, 0.89)",
+        "#F2495C",
+        "#B877D9"
+      ],
+      "datasource": "PostgreSQL",
+      "decimals": 2,
+      "esMetric": "Count",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 32,
+      "initialZoom": "1",
+      "jsonUrl": "http://192.168.0.184:5000/countries/",
+      "jsonpCallback": "get",
+      "jsonpUrl": "http://localhost:5000/countries",
+      "locationData": "countries",
+      "mapCenter": "(0°, 0°)",
+      "mapCenterLatitude": 0,
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "showLegend": true,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "geohash",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "metric",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  a.time as \"time\", \n  a.country_code,\n  CAST (100.0 * a.confirmed / b.population AS FLOAT) AS \"confirmed\"\nFROM covid19 a, population b \nWHERE \n  a.country_code = b.country_code and\n  $__timeFilter(\"time\")\nORDER BY 1,2;",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "0.5,1,2",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "World Map - Cases / Population",
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "",
+      "unitSingle": "",
+      "unitSingular": "",
+      "valueName": "current"
+    },
+    {
+      "circleMaxSize": "",
+      "circleMinSize": "1",
+      "colors": [
+        "#73BF69",
+        "rgba(237, 129, 40, 0.89)",
+        "#F2495C",
+        "#B877D9"
+      ],
+      "datasource": "PostgreSQL",
+      "decimals": 0,
+      "esMetric": "Count",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 0,
+        "y": 36
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 12,
+      "initialZoom": "1",
+      "jsonUrl": "http://192.168.0.184:5000/countries/",
+      "jsonpCallback": "get",
+      "jsonpUrl": "http://localhost:5000/countries",
+      "locationData": "countries",
+      "mapCenter": "(0°, 0°)",
+      "mapCenterLatitude": 0,
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "showLegend": true,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "geohash",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "metric",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  country_code,\n  confirmed-recovered-death \"active\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "50000,100000,500000",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "World Map - Active",
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "",
+      "unitSingle": "",
+      "unitSingular": "",
+      "valueName": "current"
+    },
+    {
+      "circleMaxSize": "10",
+      "circleMinSize": "0",
+      "colors": [
+        "#73BF69",
+        "rgba(237, 129, 40, 0.89)",
+        "#F2495C",
+        "#B877D9"
+      ],
+      "datasource": "PostgreSQL",
+      "decimals": 0,
+      "esMetric": "Count",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 36
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 25,
+      "initialZoom": "1",
+      "jsonUrl": "http://192.168.0.184:5000/countries/",
+      "jsonpCallback": "get",
+      "jsonpUrl": "http://localhost:5000/countries",
+      "locationData": "countries",
+      "mapCenter": "(0°, 0°)",
+      "mapCenterLatitude": 0,
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "showLegend": true,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "geohash",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "metric",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [
+            {
+              "params": [
+                "1d",
+                "none"
+              ],
+              "type": "time"
+            }
+          ],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  $__timeGroupAlias(\"time\",1d),\n  country_code as \"metric\",\n  avg(confirmed-death-recovered) - lag(avg(confirmed-death-recovered)) OVER (PARTITION by country_code ORDER BY $__timeGroup(\"time\",1d)) AS \"value\"\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nGROUP BY 1, metric\nORDER BY 1, metric",
+          "refId": "B",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed-death-recovered"
+                ],
+                "type": "column"
+              },
+              {
+                "params": [
+                  "avg"
+                ],
+                "type": "aggregate"
+              },
+              {
+                "params": [
+                  "delta"
+                ],
+                "type": "window"
+              },
+              {
+                "params": [
+                  "confirmed-death-recovered"
+                ],
+                "type": "alias"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "1,100,1000",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "World Map - Evolution",
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "",
+      "unitSingle": "",
+      "unitSingular": "",
+      "valueName": "current"
+    },
+    {
+      "circleMaxSize": "",
+      "circleMinSize": "1",
+      "colors": [
+        "#73BF69",
+        "rgba(237, 129, 40, 0.89)",
+        "#F2495C",
+        "#B877D9"
+      ],
+      "datasource": "PostgreSQL",
+      "decimals": 0,
+      "esMetric": "Count",
+      "fieldConfig": {
+        "defaults": {
+          "custom": {}
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 13,
+        "w": 12,
+        "x": 12,
+        "y": 49
+      },
+      "hideEmpty": false,
+      "hideZero": false,
+      "id": 22,
+      "initialZoom": "1",
+      "jsonUrl": "http://192.168.0.184:5000/countries/",
+      "jsonpCallback": "get",
+      "jsonpUrl": "http://localhost:5000/countries",
+      "locationData": "countries",
+      "mapCenter": "(0°, 0°)",
+      "mapCenterLatitude": 0,
+      "mapCenterLongitude": 0,
+      "maxDataPoints": 1,
+      "mouseWheelZoom": true,
+      "showLegend": true,
+      "stickyLabels": false,
+      "tableQueryOptions": {
+        "geohashField": "geohash",
+        "latitudeField": "latitude",
+        "longitudeField": "longitude",
+        "metricField": "metric",
+        "queryType": "geohash"
+      },
+      "targets": [
+        {
+          "format": "time_series",
+          "group": [],
+          "metricColumn": "none",
+          "rawQuery": true,
+          "rawSql": "SELECT\n  \"time\" AS \"time\",\n  country_code,\n  death\nFROM covid19\nWHERE\n  $__timeFilter(\"time\")\nORDER BY 1",
+          "refId": "A",
+          "select": [
+            [
+              {
+                "params": [
+                  "confirmed"
+                ],
+                "type": "column"
+              }
+            ]
+          ],
+          "table": "covid19",
+          "timeColumn": "\"time\"",
+          "timeColumnType": "timestamp",
+          "where": [
+            {
+              "name": "$__timeFilter",
+              "params": [],
+              "type": "macro"
+            }
+          ]
+        }
+      ],
+      "thresholds": "5000,10000,50000",
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "World Map - Deaths",
+      "type": "grafana-worldmap-panel",
+      "unitPlural": "",
+      "unitSingle": "",
+      "unitSingular": "",
+      "valueName": "current"
     }
   ],
-  "refresh": "1h",
-  "schemaVersion": 22,
+  "refresh": false,
+  "schemaVersion": 26,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": []
   },
   "time": {
-    "from": "now-7d",
+    "from": "now-1y",
     "to": "now"
   },
   "timepicker": {
@@ -652,10 +1197,7 @@
     ]
   },
   "timezone": "",
-  "title": "Corona - World",
-  "uid": "wF-mHgWRk",
-  "variables": {
-    "list": []
-  },
-  "version": 11
+  "title": "Covid19 - World",
+  "uid": "_XF1ESzgz",
+  "version": 15
 }
