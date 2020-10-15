@@ -5,7 +5,7 @@ from src.countries import country_codes
 from src.pgconnector import PostgresConnector
 
 
-class PopulationConnector(PostgresConnector):
+class PopulationDBConnector(PostgresConnector):
     def __init__(self, host, port, database, user, password):
         super().__init__(host, port, database, user, password)
         self.first = True

@@ -1,7 +1,8 @@
 import os
 import datetime
 import psycopg2
-from src.covid19 import CovidConnector
+import psycopg2.errors
+from src.covid19 import CovidDBConnector
 
 
 def get_dbenv():
@@ -15,7 +16,7 @@ def get_dbenv():
 
 def get_connector():
     host, port, database, user, password = get_dbenv()
-    return CovidConnector(host, port, database, user, password)
+    return CovidDBConnector(host, port, database, user, password)
 
 
 def test_pgconnector():

@@ -8,13 +8,13 @@ from pimetrics.probe import APIProbe
 from src.pgconnector import PostgresConnector, DBError
 from src.version import version
 from src.configuration import print_configuration
-from src.population import PopulationProbe, PopulationConnector
+from src.population import PopulationProbe, PopulationDBConnector
 from src.countries import country_codes
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
 
 
-class CovidConnector(PostgresConnector):
+class CovidDBConnector(PostgresConnector):
     def __init__(self, host, port, database, user, password):
         super().__init__(host, port, database, user, password)
         self.first = True
@@ -263,7 +263,7 @@ def covid19(configuration):
     start_http_server(configuration.port)
 
     if configuration.postgres_host:
-        populationconn = PopulationConnector(
+        populationconn = PopulationDBConnector(
             host=configuration.postgres_host,
             port=configuration.postgres_port,
             database=configuration.postgres_database,
@@ -273,13 +273,15 @@ def covid19(configuration):
         probe = PopulationProbe(configuration.apikey, populationconn)
         probe.run()
 
-    covidconn = CovidConnector(
-        host=configuration.postgres_host,
-        port=configuration.postgres_port,
-        database=configuration.postgres_database,
-        user=configuration.postgres_user,
-        password=configuration.postgres_password
-    )
+        covidconn = CovidDBConnector(
+            host=configuration.postgres_host,
+            port=configuration.postgres_port,
+            database=configuration.postgres_database,
+            user=configuration.postgres_user,
+            password=configuration.postgres_password
+        )
+    else:
+        covidconn = None
 
     probe = CoronaStats(configuration.apikey, covidconn)
     while True:
