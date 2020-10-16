@@ -61,6 +61,7 @@ class Covid19API:
             confirmed['datapoints'].append([sum(last['confirmed'].values()), time])
             death['datapoints'].append([sum(last['death'].values()), time])
             recovered['datapoints'].append([sum(last['recovered'].values()), time])
+        # TODO: support table output: https://grafana.com/grafana/plugins/simpod-json-datasource#query
         output = []
         if is_target('confirmed', targets):
             output.append(confirmed)
