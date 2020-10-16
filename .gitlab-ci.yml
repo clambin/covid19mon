@@ -83,4 +83,5 @@ publish:
             clambin/$IMAGE:latest-amd64
             clambin/$IMAGE:latest-arm;
           docker manifest push -p clambin/$IMAGE:latest;
-        fi
+        fi;
+      done
