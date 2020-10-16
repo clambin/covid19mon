@@ -109,4 +109,4 @@ def covid19api(configuration):
         configuration.postgres_database,
         configuration.postgres_user, configuration.postgres_password)
     g_covid19api = Covid19API(covid19pg)
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')  # nosec
