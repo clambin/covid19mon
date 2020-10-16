@@ -23,7 +23,7 @@ spec:
       restartPolicy: Always
       containers:
         - name: covid19mon
-          image: __IMAGE__:__TAG__
+          image: clambin/covid19mon:__TAG__
           imagePullPolicy: Always
           env:
           - name: apikey
@@ -63,3 +63,76 @@ spec:
             - '--postgres-database=$(pg_database)'
             - '--postgres-user=$(pg_user)'
             - '--postgres-password=$(pg_password)'
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: covid19api
+  labels:
+    app: covid19api
+  annotations:
+    app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
+    app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: covid19api
+  template:
+    metadata:
+      labels:
+        app: covid19api
+      annotations:
+        app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
+        app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: covid19api
+          image: clambin/covid19api:__TAG__
+          imagePullPolicy: Always
+          env:
+            - name: pg_host
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: pg_host
+            - name: pg_port
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: pg_port
+            - name: pg_database
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: pg_database
+            - name: pg_user
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: pg_user
+            - name: pg_password
+              valueFrom:
+                secretKeyRef:
+                  name: covid19mon
+                  key: pg_password
+          args:
+            - '--postgres-host=$(pg_host)'
+            - '--postgres-port=$(pg_port)'
+            - '--postgres-database=$(pg_database)'
+            - '--postgres-user=$(pg_user)'
+            - '--postgres-password=$(pg_password)'
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: covid19api
+  labels:
+    app: covid19api
+spec:
+  selector:
+    app: covid19api
+  ports:
+    - port: 5000
+      targetPort: 5000

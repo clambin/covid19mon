@@ -3,8 +3,8 @@ import datetime
 import requests
 import logging
 import pytz
-from src.covid19 import country_codes
-from src.covid19 import CovidConnector
+from src.covid19mon import country_codes
+from src.covid19mon import CovidConnector
 
 # You'd expect country names & codes would be an easy standard but noooooo ...
 country_mapping = {

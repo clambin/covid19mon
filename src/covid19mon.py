@@ -37,7 +37,7 @@ def initialise(configuration):
     return scheduler
 
 
-def covid19(configuration):
+def covid19mon(configuration):
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S',
                         level=logging.DEBUG if configuration.debug else logging.INFO)
     logging.info(f'Starting covid19mon v{version}')

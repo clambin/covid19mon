@@ -2,7 +2,7 @@ import logging
 import os
 import psycopg2
 from src.pgconnector import PostgresConnector
-from src.covid19 import CovidConnector
+from src.covid19mon import CovidConnector
 
 
 class TSDBConnector(PostgresConnector):

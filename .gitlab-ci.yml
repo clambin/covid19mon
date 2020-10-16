@@ -33,3 +33,54 @@ pytest:
   artifacts:
     reports:
       junit: tests/report.xml
+
+build_amd64:
+  stage: build
+  extends:
+    - .docker
+  tags:
+    - docker
+    - shared
+  script:
+    - for IMAGE in covid19mon covid19api; do
+        docker build --pull -t clambin/$IMAGE:$TAG-amd64 -f Dockerfile-$IMAGE .;
+        docker push clambin/$IMAGE:$TAG-amd64;
+      done
+
+build_arm:
+  stage: build
+  extends:
+    - .docker
+  tags:
+    - k8s
+    - arm
+  script:
+    - for IMAGE in covid19mon covid19api; do
+        docker build --pull -t clambin/$IMAGE:$TAG-arm -f Dockerfile-$IMAGE .;
+        docker push clambin/$IMAGE:$TAG-arm;
+      done
+
+publish:
+  stage: release
+  extends: .docker
+  tags:
+    - docker
+    - shared
+  script:
+    - for IMAGE in covid19mon covid19api; do
+        docker pull clambin/$IMAGE:$TAG-amd64;
+        docker pull clambin/$IMAGE:$TAG-arm;
+        docker manifest create clambin/$IMAGE:$TAG
+          $CI_PROJECT_PATH:$TAG-amd64
+          $CI_PROJECT_PATH:$TAG-arm;
+        docker manifest push -p clambin/$IMAGE:$TAG;
+        if [[ -n "$CI_COMMIT_TAG" ]]; then
+          docker tag clambin/$IMAGE:$TAG-amd64 clambin/$IMAGE:latest-amd64;
+          docker push clambin/$IMAGE:latest-amd64;
+          docker tag clambin/$IMAGE:$TAG-arm clambin/$IMAGE:latest-arm;
+          docker push clambin/$IMAGE:latest-arm;
+          docker manifest create clambin/$IMAGE:latest
+            clambin/$IMAGE:latest-amd64
+            clambin/$IMAGE:latest-arm;
+          docker manifest push -p clambin/$IMAGE:latest;
+        fi

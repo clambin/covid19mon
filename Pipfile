@@ -12,7 +12,7 @@ prometheus-client = "*"
 pimetrics = "*"
 requests = "*"
 postgres = "*"
-pytz = "*"
+flask = "*"
 
 [requires]
 python_version = "3.7"
