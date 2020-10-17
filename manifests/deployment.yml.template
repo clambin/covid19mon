@@ -7,7 +7,8 @@ metadata:
   annotations:
     app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
     app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
-spec:
+    commit_id: "__CI_COMMIT_SHORT_SHA__"
+spec :
   replicas: 1
   selector:
     matchLabels:
@@ -19,6 +20,7 @@ spec:
       annotations:
         app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
         app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+        commit_id: "__CI_COMMIT_SHORT_SHA__"
     spec:
       restartPolicy: Always
       containers:
@@ -86,6 +88,7 @@ spec:
       annotations:
         app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
         app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+        commit_id: "__CI_COMMIT_SHORT_SHA__"
     spec:
       restartPolicy: Always
       containers:
