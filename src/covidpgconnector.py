@@ -28,18 +28,9 @@ class CovidPGConnector(PostgresConnector):
                 death DOUBLE PRECISION,
                 recovered DOUBLE PRECISION
                 );
-                CREATE INDEX IF NOT EXISTS idx_covid_country ON covid19(country_name);
+                CREATE INDEX IF NOT EXISTS idx_covid_country_name ON covid19(country_name);
+                CREATE INDEX IF NOT EXISTS idx_covid_country_code ON covid19(country_code);
                 CREATE INDEX IF NOT EXISTS idx_covid_time ON covid19(time);
-                CREATE OR REPLACE VIEW delta AS
-                    SELECT country_code, DATE_TRUNC('day', time) AS "day",
-                    MAX(confirmed)-LAG(MAX(confirmed)) OVER (ORDER BY country_code, DATE_TRUNC('day',time))
-                        AS "confirmed",
-                    MAX(death)-LAG(MAX(death)) OVER (ORDER BY country_code, DATE_TRUNC('day',time)) AS "death",
-                    MAX(recovered)-LAG(MAX(recovered)) OVER (ORDER BY country_code, DATE_TRUNC('day',time))
-                        AS "recovered"
-                    FROM covid19
-                    GROUP BY 1,2
-                    ORDER BY 1,2
             """)
             curr.close()
             conn.commit()
@@ -54,7 +45,6 @@ class CovidPGConnector(PostgresConnector):
         try:
             conn = self.connect()
             cur = conn.cursor()
-            cur.execute("""DROP VIEW IF EXISTS delta""")
             cur.execute("""DROP INDEX IF EXISTS idx_covid19_country""")
             cur.execute("""DROP INDEX IF EXISTS idx_covid19_time""")
             cur.execute("""DROP TABLE IF EXISTS covid19""")

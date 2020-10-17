@@ -6,7 +6,7 @@ class CovidPGConnectorStub:
     def __init__(self, data):
         self.data = data
 
-    def list(self, start_time=None, end_time=None):
+    def list(self, end_time=None):
         if end_time is None:
             return self.data
         redux = list(filter(lambda x: Covid19API.datetime_to_epoch(x[0]) <= Covid19API.grafana_date_to_epoch(end_time),
