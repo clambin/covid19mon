@@ -34,18 +34,7 @@ pytest:
     reports:
       junit: tests/report.xml
 
-build_amd64:
-  stage: build
-  extends:
-    - .docker
-  tags:
-    - docker
-    - shared
-  script:
-    - docker build --pull -t clambin/covid19mon:$TAG-amd64 -f Dockerfile-covid19mon .
-    - docker push clambin/covid19mon:$TAG-amd64
-
-build_api_amd64:
+build:api:amd64:
   stage: build
   extends:
     - .docker
@@ -56,18 +45,7 @@ build_api_amd64:
     - docker build --pull -t clambin/covid19api:$TAG-amd64 -f Dockerfile-covid19api .
     - docker push clambin/covid19api:$TAG-amd64
 
-build_arm:
-  stage: build
-  extends:
-    - .docker
-  tags:
-    - k8s
-    - arm
-  script:
-    - docker build --network host --pull -t clambin/covid19mon:$TAG-arm -f Dockerfile-covid19mon .
-    - docker push clambin/covid19mon:$TAG-arm;
-
-build_api_arm:
+build:api:arm:
   stage: build
   extends:
     - .docker
@@ -78,42 +56,15 @@ build_api_arm:
     - docker build --network host --pull -t clambin/covid19api:$TAG-arm -f Dockerfile-covid19api .
     - docker push clambin/covid19api:$TAG-arm;
 
-publish:
+publish:api:
   stage: release
   extends: .docker
   tags:
     - docker
     - shared
   needs:
-    - job: build_amd64
-    - job: build_arm
-  script:
-    - docker pull clambin/covid19mon:$TAG-amd64
-    - docker pull clambin/covid19mon:$TAG-arm
-    - docker manifest create clambin/covid19mon:$TAG
-      clambin/covid19mon:$TAG-amd64
-      clambin/covid19mon:$TAG-arm
-    - docker manifest push -p clambin/covid19mon:$TAG
-    - if [[ -n "$CI_COMMIT_TAG" ]]; then
-      docker tag clambin/covid19mon:$TAG-amd64 clambin/covid19mon:latest-amd64;
-      docker push clambin/covid19mon:latest-amd64;
-      docker tag clambin/covid19mon:$TAG-arm clambin/covid19mon:latest-arm;
-      docker push clambin/covid19mon:latest-arm;
-      docker manifest create clambin/covid19mon:latest
-      clambin/covid19mon:latest-amd64
-      clambin/covid19mon:latest-arm;
-      docker manifest push -p clambin/covid19mon:latest;
-      fi
-
-publish_api:
-  stage: release
-  extends: .docker
-  tags:
-    - docker
-    - shared
-  needs:
-    - job: build_api_amd64
-    - job: build_api_arm
+    - job: build:api:amd64
+    - job: build:api:arm
   script:
     - docker pull clambin/covid19api:$TAG-amd64
     - docker pull clambin/covid19api:$TAG-arm
