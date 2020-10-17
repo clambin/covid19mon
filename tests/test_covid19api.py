@@ -6,8 +6,12 @@ class CovidPGConnectorStub:
     def __init__(self, data):
         self.data = data
 
-    def list(self, end_time=None):
-        return self.data
+    def list(self, start_time=None, end_time=None):
+        if end_time is None:
+            return self.data
+        redux = list(filter(lambda x: Covid19API.datetime_to_epoch(x[0]) <= Covid19API.grafana_date_to_epoch(end_time),
+                            self.data))
+        return redux
 
 
 test_data = [
@@ -107,6 +111,24 @@ def test_covid19api():
                 [2, 1578182400000],
                 [1, 1578355200000],
                 [15, 1578528000000],
+            ]
+        }
+    ]
+    assert covid19api.get_data([('active-delta', '')], start_time='2020-01-09T00:00:00.000Z') == [
+        {
+            'target': 'active-delta',
+            'datapoints': [
+                [15, 1578528000000],
+            ]
+        }
+    ]
+    assert covid19api.get_data([('active-delta', '')], end_time='2020-01-07T00:00:00.000Z') == [
+        {
+            'target': 'active-delta',
+            'datapoints': [
+                [1, 1577836800000],
+                [2, 1578182400000],
+                [1, 1578355200000],
             ]
         }
     ]
