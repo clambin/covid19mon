@@ -122,6 +122,7 @@ spec:
                   name: covid19mon
                   key: pg_password
           args:
+            - '--debug'
             - '--postgres-host=$(pg_host)'
             - '--postgres-port=$(pg_port)'
             - '--postgres-database=$(pg_database)'

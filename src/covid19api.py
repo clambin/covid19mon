@@ -27,7 +27,7 @@ class Covid19API:
     def set_covidpg(self, covidpg):
         self.covid19pg = covidpg
 
-    def get_data(self, targets):
+    def get_data(self, targets, start_time, end_time):
         def datetime_to_epoch(ts):
             return int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
 
@@ -85,6 +85,7 @@ class Covid19API:
                         my_metrics[f'{t}-delta']['datapoints'].append([current[t] - previous[t], time])
             return my_metrics
 
+        logging.debug(f'{start_time} {end_time}')
         values, countries = get_data_by_time_country()
         metrics = get_data_by_time(values, countries)
         output = []
@@ -117,12 +118,11 @@ def grafana_query():
     req = request.get_json(force=True)
     # max_data_points = req['maxDataPoints']
     # interval = req['interval']
-    # TODO: optimize by only calculating/returning for start_time/end_time
-    # start_time = req['range']['from']
-    # end_time = req['range']['to']
+    start_time = req['range']['from']
+    end_time = req['range']['to']
     targets = [(entry['target'], entry['type']) for entry in req['targets']]
     logging.info(f'/request - {targets}')
-    metrics = g_covid19api.get_data(targets)
+    metrics = g_covid19api.get_data(targets, start_time, end_time)
     logging.debug(f'/query: {json.dumps(metrics, indent=4, sort_keys=True)}')
     return json.dumps(metrics)
 
