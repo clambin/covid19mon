@@ -154,7 +154,7 @@ class CovidPGConnector(PostgresConnector):
             cur = conn.cursor()
             if end_time:
                 cur.execute("""
-                SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 
+                SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19
                     WHERE time < (%s) ORDER BY time
             """, (end_time,))
             else:
