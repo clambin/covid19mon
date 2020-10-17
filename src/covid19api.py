@@ -79,7 +79,8 @@ def index():
 
 @app.route("/search", methods=["POST"])
 def grafana_search():
-    targets = Covid19API.targets
+    global g_covid19api
+    targets = g_covid19api.targets
     return json.dumps(targets)
 
 

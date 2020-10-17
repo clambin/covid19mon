@@ -42,10 +42,19 @@ build_amd64:
     - docker
     - shared
   script:
-    - for IMAGE in covid19mon covid19api; do
-        docker build --pull -t clambin/$IMAGE:$TAG-amd64 -f Dockerfile-$IMAGE .;
-        docker push clambin/$IMAGE:$TAG-amd64;
-      done
+    - docker build --pull -t clambin/covid19mon:$TAG-amd64 -f Dockerfile-covid19mon .
+    - docker push clambin/covid19mon:$TAG-amd64
+
+build_api_amd64:
+  stage: build
+  extends:
+    - .docker
+  tags:
+    - docker
+    - shared
+  script:
+    - docker build --pull -t clambin/covid19api:$TAG-amd64 -f Dockerfile-covid19api .
+    - docker push clambin/covid19api:$TAG-amd64
 
 build_arm:
   stage: build
