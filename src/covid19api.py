@@ -1,3 +1,5 @@
+import os
+import cProfile
 import json
 import logging
 from datetime import datetime
@@ -124,3 +126,13 @@ def covid19api(configuration):
         configuration.postgres_database,
         configuration.postgres_user, configuration.postgres_password))
     app.run(debug=False, host='0.0.0.0')  # nosec
+
+
+if __name__ == '__main__':
+    g_covid19api.set_covidpg(CovidPGConnector(
+        os.getenv('POSTGRES_HOST'),
+        os.getenv('POSTGRES_PORT'),
+        os.getenv('POSTGRES_DATABASE'),
+        os.getenv('POSTGRES_USER'),
+        os.getenv('POSTGRES_PASSWORD')))
+    cProfile.run('g_covid19api.get_data([("confirmed","timeseries")])')
