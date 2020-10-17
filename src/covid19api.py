@@ -123,7 +123,7 @@ def grafana_query():
     start_time = req['range']['from']
     end_time = req['range']['to']
     targets = [(entry['target'], entry['type']) for entry in req['targets']]
-    logging.info(f'/request - {targets}')
+    logging.info(f'/request - {targets} ({start_time}/{end_time}')
     metrics = g_covid19api.get_data(targets, start_time, end_time)
     logging.debug(f'/query: {json.dumps(metrics, indent=4, sort_keys=True)}')
     return json.dumps(metrics)
