@@ -84,9 +84,7 @@ publish:
   tags:
     - docker
     - shared
-  needs:
-    - build_amd64
-    - build_arm
+  needs: ["build_amd64", "build_arm"]
   script:
     - docker pull clambin/covid19mon:$TAG-amd64
     - docker pull clambin/covid19mon:$TAG-arm
@@ -111,9 +109,7 @@ publish_api:
   tags:
     - docker
     - shared
-  needs:
-    - build_api_amd64
-    - build_api_arm
+  needs: ["build_api_amd64", "build_api_arm"]
   script:
     - docker pull clambin/covid19api:$TAG-amd64
     - docker pull clambin/covid19api:$TAG-arm

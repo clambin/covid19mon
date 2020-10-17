@@ -14,6 +14,7 @@ class Covid19API:
     def __init__(self):
         self._targets = ['confirmed', 'death', 'recovered', 'active']
         self.covid19pg = None
+        self._epochs = {}
 
     @property
     def targets(self):
@@ -24,7 +25,9 @@ class Covid19API:
 
     def get_data(self, targets):
         def datetime_to_epoch(ts):
-            return int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
+            if ts not in self._epochs:
+                self._epochs[ts] = int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
+            return self._epochs[ts]
 
         def is_target(my_target, target_names):
             for t in target_names:
