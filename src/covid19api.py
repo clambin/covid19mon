@@ -26,7 +26,8 @@ class Covid19API:
     def get_data(self, targets):
         def datetime_to_epoch(ts):
             if ts not in self._epochs:
-                self._epochs[ts] = int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
+                self._epochs[ts] = \
+                    int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
             return self._epochs[ts]
 
         def is_target(my_target, target_names):
