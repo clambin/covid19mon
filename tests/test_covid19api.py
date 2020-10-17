@@ -33,9 +33,31 @@ def test_covid19api():
             ]
         }
     ]
+    assert covid19api.get_data([('confirmed-delta', '')]) == [
+        {
+            'target': 'confirmed-delta',
+            'datapoints': [
+                [1, 1577836800000],
+                [2, 1578182400000],
+                [1, 1578355200000],
+                [16, 1578528000000],
+            ]
+        }
+    ]
     assert covid19api.get_data([('death', '')]) == [
         {
             'target': 'death',
+            'datapoints': [
+                [0, 1577836800000],
+                [0, 1578182400000],
+                [0, 1578355200000],
+                [0, 1578528000000],
+            ]
+        }
+    ]
+    assert covid19api.get_data([('death-delta', '')]) == [
+        {
+            'target': 'death-delta',
             'datapoints': [
                 [0, 1577836800000],
                 [0, 1578182400000],
@@ -55,6 +77,17 @@ def test_covid19api():
             ]
         }
     ]
+    assert covid19api.get_data([('recovered-delta', '')]) == [
+        {
+            'target': 'recovered-delta',
+            'datapoints': [
+                [0, 1577836800000],
+                [0, 1578182400000],
+                [0, 1578355200000],
+                [1, 1578528000000],
+            ]
+        }
+    ]
     assert covid19api.get_data([('active', '')]) == [
         {
             'target': 'active',
@@ -63,6 +96,17 @@ def test_covid19api():
                 [3, 1578182400000],
                 [4, 1578355200000],
                 [19, 1578528000000],
+            ]
+        }
+    ]
+    assert covid19api.get_data([('active-delta', '')]) == [
+        {
+            'target': 'active-delta',
+            'datapoints': [
+                [1, 1577836800000],
+                [2, 1578182400000],
+                [1, 1578355200000],
+                [15, 1578528000000],
             ]
         }
     ]

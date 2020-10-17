@@ -12,9 +12,13 @@ from flask import Flask, request
 
 class Covid19API:
     def __init__(self):
-        self._targets = ['confirmed', 'death', 'recovered', 'active']
+        self._targets = [
+            'confirmed', 'confirmed-delta',
+            'death', 'death-delta',
+            'recovered', 'recovered-delta',
+            'active', 'active-delta'
+        ]
         self.covid19pg = None
-        self._epochs = {}
 
     @property
     def targets(self):
@@ -25,10 +29,7 @@ class Covid19API:
 
     def get_data(self, targets):
         def datetime_to_epoch(ts):
-            if ts not in self._epochs:
-                self._epochs[ts] = \
-                    int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
-            return self._epochs[ts]
+            return int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
 
         def is_target(my_target, target_names):
             for t in target_names:
@@ -56,8 +57,10 @@ class Covid19API:
         # TODO: support table output: https://grafana.com/grafana/plugins/simpod-json-datasource#query
         def get_data_by_time(my_values, my_countries):
             my_metrics = dict()
+            current = dict()
             for t in self.targets:
                 my_metrics[t] = {'target': t, 'datapoints': []}
+                current[t] = 0
             last = {
                 'confirmed': {country: 0 for country in my_countries},
                 'death': {country: 0 for country in my_countries},
@@ -68,13 +71,18 @@ class Covid19API:
                     last['confirmed'][country] = data['confirmed']
                     last['death'][country] = data['death']
                     last['recovered'][country] = data['recovered']
+                previous = current
                 current = dict()
                 current['confirmed'] = sum(last['confirmed'].values())
                 current['death'] = sum(last['death'].values())
                 current['recovered'] = sum(last['recovered'].values())
                 current['active'] = current['confirmed'] - current['death'] - current['recovered']
                 for t in self.targets:
-                    my_metrics[t]['datapoints'].append([current[t], time])
+                    if t.endswith('-delta'):
+                        pass
+                    else:
+                        my_metrics[t]['datapoints'].append([current[t], time])
+                        my_metrics[f'{t}-delta']['datapoints'].append([current[t] - previous[t], time])
             return my_metrics
 
         values, countries = get_data_by_time_country()
