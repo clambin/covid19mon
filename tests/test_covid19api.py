@@ -24,7 +24,7 @@ def test_covid19api():
     covid19api = Covid19API(pgcovid)
     assert covid19api.get_data([('confirmed', '')]) == [
         {
-            'target': 'recovered',
+            'target': 'confirmed',
             'datapoints': [
                 [1, 1577836800000],
                 [3, 1578182400000],

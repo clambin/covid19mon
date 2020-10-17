@@ -45,7 +45,7 @@ class Covid19API:
                 values[time][code] = {}
             values[time][code] = {'confirmed': confirmed, 'death': death, 'recovered': recovered}
             countries.add(code)
-        confirmed = {'target': 'recovered', 'datapoints': []}
+        confirmed = {'target': 'confirmed', 'datapoints': []}
         death = {'target': 'death', 'datapoints': []}
         recovered = {'target': 'recovered', 'datapoints': []}
         last = {
@@ -81,6 +81,7 @@ def index():
 def grafana_search():
     global g_covid19api
     targets = g_covid19api.targets
+    logging.debug(f'/search: {json.dumps(targets, indent=4, sort_keys=True)}')
     return json.dumps(targets)
 
 
@@ -96,7 +97,7 @@ def grafana_query():
     targets = [(entry['target'], entry['type']) for entry in req['targets']]
     logging.debug(f'Got request for {targets}')
     metrics = g_covid19api.get_data(targets)
-    logging.debug(f'Response: {json.dumps(metrics, indent=4, sort_keys=True)}')
+    logging.debug(f'/query: {json.dumps(metrics, indent=4, sort_keys=True)}')
     return json.dumps(metrics)
 
 
