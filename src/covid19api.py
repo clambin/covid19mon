@@ -27,21 +27,23 @@ class Covid19API:
     def set_covidpg(self, covidpg):
         self.covid19pg = covidpg
 
-    def get_data(self, targets, start_time, end_time):
-        def datetime_to_epoch(ts):
-            return int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
+    @staticmethod
+    def datetime_to_epoch(ts):
+        return int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
 
-        def is_target(my_target, target_names):
-            for t in target_names:
-                if t[0] == my_target:
-                    return True
-            return False
+    @staticmethod
+    def is_target(my_target, target_names):
+        for t in target_names:
+            if t[0] == my_target:
+                return True
+        return False
 
-        def get_data_by_time_country():
+    def get_data(self, targets, start_time=None, end_time=None):
+        def get_data_by_time_country(end_time=None):
             my_countries = set()
             my_values = dict()
-            for entry in self.covid19pg.list():
-                time = datetime_to_epoch(entry[0])
+            for entry in self.covid19pg.list(end_time):
+                time = Covid19API.datetime_to_epoch(entry[0])
                 code = entry[1]
                 confirmed = entry[3]
                 death = entry[4]
@@ -55,7 +57,7 @@ class Covid19API:
             return my_values, my_countries
 
         # TODO: support table output: https://grafana.com/grafana/plugins/simpod-json-datasource#query
-        def get_data_by_time(my_values, my_countries):
+        def get_data_by_time(my_values, my_countries, start_time):
             my_metrics = dict()
             current = dict()
             for t in self.targets:
@@ -86,11 +88,11 @@ class Covid19API:
             return my_metrics
 
         logging.debug(f'{start_time} {end_time}')
-        values, countries = get_data_by_time_country()
-        metrics = get_data_by_time(values, countries)
+        values, countries = get_data_by_time_country(end_time)
+        metrics = get_data_by_time(values, countries, start_time)
         output = []
         for target in self.targets:
-            if is_target(target, targets):
+            if Covid19API.is_target(target, targets):
                 output.append(metrics[target])
         return output
 

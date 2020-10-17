@@ -6,7 +6,7 @@ class CovidPGConnectorStub:
     def __init__(self, data):
         self.data = data
 
-    def list(self):
+    def list(self, end_time=None):
         return self.data
 
 

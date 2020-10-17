@@ -147,14 +147,20 @@ class CovidPGConnector(PostgresConnector):
                 if conn:
                     conn.close()
 
-    def list(self):
+    def list(self, end_time=None):
         conn = rows = None
         try:
             conn = self.connect()
             cur = conn.cursor()
-            cur.execute("""
-                SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 ORDER BY time
-            """)
+            if end_time:
+                cur.execute("""
+                SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 
+                    WHERE time < (%s) ORDER BY time
+            """, (end_time,))
+            else:
+                cur.execute("""
+                    SELECT time, country_code, country_name, confirmed, death, recovered FROM covid19 ORDER BY time
+                """)
             rows = cur.fetchall()
             cur.close()
         except (Exception, psycopg2.DatabaseError) as error:
