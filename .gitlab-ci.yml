@@ -64,7 +64,7 @@ build_arm:
     - k8s
     - arm
   script:
-    - docker build --pull -t clambin/covid19mon:$TAG-arm -f Dockerfile-covid19mon .
+    - docker build --network host --pull -t clambin/covid19mon:$TAG-arm -f Dockerfile-covid19mon .
     - docker push clambin/covid19mon:$TAG-arm;
 
 build_api_arm:
@@ -75,7 +75,7 @@ build_api_arm:
     - k8s
     - arm
   script:
-    - docker build --pull -t clambin/covid19api:$TAG-arm -f Dockerfile-covid19api .
+    - docker build --network host --pull -t clambin/covid19api:$TAG-arm -f Dockerfile-covid19api .
     - docker push clambin/covid19api:$TAG-arm;
 
 publish:
