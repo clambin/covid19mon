@@ -20,8 +20,8 @@ test_data = [
 
 
 def test_covid19api():
-    pgcovid = CovidPGConnectorStub(test_data)
-    covid19api = Covid19API(pgcovid)
+    covid19api = Covid19API()
+    covid19api.set_covidpg(CovidPGConnectorStub(test_data))
     assert covid19api.get_data([('confirmed', '')]) == [
         {
             'target': 'confirmed',
@@ -52,6 +52,17 @@ def test_covid19api():
                 [0, 1578182400000],
                 [0, 1578355200000],
                 [1, 1578528000000],
+            ]
+        }
+    ]
+    assert covid19api.get_data([('active', '')]) == [
+        {
+            'target': 'active',
+            'datapoints': [
+                [1, 1577836800000],
+                [3, 1578182400000],
+                [4, 1578355200000],
+                [19, 1578528000000],
             ]
         }
     ]
