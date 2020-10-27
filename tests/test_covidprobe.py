@@ -65,4 +65,3 @@ def test_covidlastupdate():
     covid.success = False
     covid.run()
     assert 'lastReported' not in covid.measured()
-
