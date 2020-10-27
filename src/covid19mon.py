@@ -5,7 +5,7 @@ from src.version import version
 from src.configuration import print_configuration
 from src.populationprobe import PopulationProbe
 from src.populationpgconnector import PopulationPGConnector
-from src.covidprobe import CovidProbe
+from src.covidprobe import CovidCountryProbe, CovidLastUpdateProbe
 from src.covidpgconnector import CovidPGConnector
 
 
@@ -32,7 +32,8 @@ def initialise(configuration):
     else:
         covidconn = None
 
-    scheduler.register(CovidProbe(configuration.apikey, covidconn), configuration.interval)
+    scheduler.register(CovidCountryProbe(configuration.apikey, covidconn), configuration.interval)
+    scheduler.register(CovidLastUpdateProbe(configuration.apikey), configuration.interval)
 
     return scheduler
 

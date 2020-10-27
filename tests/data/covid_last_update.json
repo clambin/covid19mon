@@ -1,0 +1,13 @@
+{
+  "error": false,
+  "statusCode": 200,
+  "message": "OK",
+  "data": {
+    "recovered": 29199046,
+    "deaths": 1159397,
+    "confirmed": 43483973,
+    "lastChecked": "2020-10-27T19:23:48+00:00",
+    "lastReported": "2020-10-27T04:24:45+00:00",
+    "location": "Global"
+  }
+}
