@@ -131,6 +131,7 @@ class CovidPGConnector(PostgresConnector):
                 conn.commit()
                 for (recorded, code, country, confirmed, deaths, recovered) in changes:
                     self._record_entry(country, confirmed, deaths, recovered)
+                logging.info(f'{len(changes)} records added')
             except (Exception, psycopg2.DatabaseError) as error:
                 logging.critical(f'Failed to insert data: {error}')
             finally:
