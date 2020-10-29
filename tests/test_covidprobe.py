@@ -1,4 +1,5 @@
 import json
+import datetime
 from abc import ABC
 from pimetrics.probe import APIProbe
 from src.covidprobe import CovidCountryProbe, CovidLastUpdateProbe
@@ -44,8 +45,14 @@ def test_covidstats():
     covid = CovidCountryTestProbe()
     covid.run()
     measured = covid.measured()
-    assert measured['Belgium'] == {'code': 'BE', 'confirmed': 85911, 'deaths': 9898, 'recovered': 18490}
-    assert measured['US'] == {'code': 'US', 'confirmed': 6113510, 'deaths': 185720, 'recovered': 2231757}
+    assert measured['Belgium'] == {
+        'code': 'BE', 'confirmed': 85911, 'deaths': 9898, 'recovered': 18490,
+        'time': datetime.datetime(2020, 9, 3, 4, 28, 22)
+    }
+    assert measured['US'] == {
+        'code': 'US', 'confirmed': 6113510, 'deaths': 185720, 'recovered': 2231757,
+        'time': datetime.datetime(2020, 9, 3, 4, 28, 22)
+    }
     assert '???' not in measured
 
 

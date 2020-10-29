@@ -78,6 +78,7 @@ class CovidCountryProbe(CovidProbe):
                 output[country]['confirmed'] += nonetozero(entry['confirmed'])
                 output[country]['deaths'] += nonetozero(entry['deaths'])
                 output[country]['recovered'] += nonetozero(entry['recovered'])
+                output[country]['time'] = datetime.strptime(entry['lastUpdate'], '%Y-%m-%dT%H:%M:%S+00:00')
         return output
 
 

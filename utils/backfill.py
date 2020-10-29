@@ -1,10 +1,11 @@
 import os
+import time
 import datetime
 import requests
 import logging
 import pytz
-from src.covid19mon import country_codes
-from src.covid19mon import CovidConnector
+from src.countries import country_codes
+from src.covidpgconnector import CovidPGConnector
 
 # You'd expect country names & codes would be an easy standard but noooooo ...
 country_mapping = {
@@ -47,9 +48,11 @@ country_mapping = {
 
 
 class HistoricalData:
-    def __init__(self):
+    def __init__(self, pgconnector):
         self.url = 'https://api.covid19api.com'
         self.countries = self._get_countries()
+        self.slowdown = 5
+        self.pgconnector = pgconnector
 
     @staticmethod
     def map_country(name):
@@ -61,15 +64,21 @@ class HistoricalData:
 
     def _call(self, endpoint):
         url = f'{self.url}/{endpoint}'
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                logging.debug(response.content)
-                return response.json()
-            else:
-                logging.error(f'Failed to get data: {response.status_code} - {response.reason}')
-        except requests.exceptions.ConnectionError as e:
-            logging.warning(f'Failed to connect to {url}: {e}')
+        while True:
+            try:
+                response = requests.get(url)
+                if response.status_code == 200:
+                    logging.debug(response.content)
+                    return response.json()
+                elif response.status_code == 429:
+                    logging.debug(f'{response.reason}. Sleeping for {self.slowdown} second(s)')
+                    time.sleep(self.slowdown)
+                else:
+                    logging.error(f'Failed to get data: {response.status_code} - {response.reason}')
+                    break
+            except requests.exceptions.ConnectionError as e:
+                logging.warning(f'Failed to connect to {url}: {e}')
+                break
         return None
 
     def _get_countries(self):
@@ -84,49 +93,45 @@ class HistoricalData:
     def get_country(self, slug):
         return self.countries[slug]['country'] if slug in self.countries else None
 
-    def get_historical_data(self, slug):
-        output = dict()
-        for entry in self._call(f'total/country/{slug}'):
-            time = pytz.UTC.localize(datetime.datetime.strptime(entry['Date'], '%Y-%m-%dT%H:%M:%SZ'))
-            output[time] = {
-                'confirmed': entry['Confirmed'],
-                'death': entry['Deaths'],
-                'recovered': entry['Recovered'],
-            }
-        return output
-
-    def backfill(self, covidconnector, countries=None):
+    def get_historical_data(self, countries=None):
         if countries is None:
             countries = self.countries.keys()
+        output = dict()
         for slug in countries:
             country = self.get_country(slug)
             country, code = self.map_country(country)
+            last_date = self.pgconnector.get_first(country)
             logging.info(f'Processing {country}')
-            last_date = covidconnector.get_first(country)
-            entries = self.get_historical_data(slug)
-            times = sorted(entries.keys())
-            if last_date:
-                times = list(filter(lambda x: x < last_date, times))
-            for time in times:
-                covidconnector.add(
-                    code,
-                    country,
-                    entries[time]['confirmed'],
-                    entries[time]['death'],
-                    entries[time]['recovered'],
-                    time
-                )
-            logging.info(f'Processed {country}. Added {len(times)} records')
+            for entry in self._call(f'total/country/{slug}'):
+                timestamp = pytz.UTC.localize(datetime.datetime.strptime(entry['Date'], '%Y-%m-%dT%H:%M:%SZ'))
+                if last_date is not None and timestamp >= last_date:
+                    continue
+                if timestamp not in output:
+                    output[timestamp] = dict()
+                output[timestamp][country] = {
+                    'time': timestamp,
+                    'code': code,
+                    'confirmed': entry['Confirmed'],
+                    'deaths': entry['Deaths'],
+                    'recovered': entry['Recovered'],
+                }
+        return output
+
+    def backfill(self, countries=None):
+        data = self.get_historical_data(countries)
+        for timestamp, values in data.items():
+            logging.info(f'Processing {timestamp}')
+            self.pgconnector.addmany(values)
 
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
-    covid = CovidConnector(
-        host='192.168.0.10',
-        port='5432',
+    covid = CovidPGConnector(
+        host='192.168.0.11',
+        port='31000',
         database='cicd',
         user='cicd',
         password=os.getenv('COVID_PASSWORD')
     )
-    server = HistoricalData()
-    server.backfill(covid)
+    server = HistoricalData(covid)
+    server.backfill()

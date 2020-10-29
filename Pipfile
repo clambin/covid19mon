@@ -13,6 +13,7 @@ pimetrics = "*"
 requests = "*"
 postgres = "*"
 flask = "*"
+pytz = "*"
 
 [requires]
 python_version = "3.7"

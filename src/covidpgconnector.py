@@ -112,9 +112,16 @@ class CovidPGConnector(PostgresConnector):
 
     def addmany(self, records):
         self._init_db()
-        recorded = datetime.now()
+        now = datetime.now()
         changes = [
-            [recorded, details['code'], country, details['confirmed'], details['deaths'], details['recovered']]
+            [
+                details['time'] if 'time' in details else now,
+                details['code'],
+                country,
+                details['confirmed'],
+                details['deaths'],
+                details['recovered']
+            ]
             for country, details in records.items()
             if self._should_report(country, details['confirmed'], details['deaths'], details['recovered'])
         ]
@@ -131,7 +138,7 @@ class CovidPGConnector(PostgresConnector):
                 conn.commit()
                 for (recorded, code, country, confirmed, deaths, recovered) in changes:
                     self._record_entry(country, confirmed, deaths, recovered)
-                logging.info(f'{len(changes)} records added')
+                logging.debug(f'{len(changes)} records added')
             except (Exception, psycopg2.DatabaseError) as error:
                 logging.critical(f'Failed to insert data: {error}')
             finally:
