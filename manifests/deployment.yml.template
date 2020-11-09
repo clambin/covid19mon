@@ -14,9 +14,10 @@ spec :
     spec:
       template:
         metadata:
-          app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
-          app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
-          commit_id: "__CI_COMMIT_SHORT_SHA__"
+          annotations:
+            app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
+            app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+            commit_id: "__CI_COMMIT_SHORT_SHA__"
         spec:
           restartPolicy: OnFailure
           containers:
