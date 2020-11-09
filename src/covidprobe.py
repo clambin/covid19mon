@@ -1,7 +1,8 @@
 from abc import ABC
 import logging
-import requests
 from datetime import datetime
+import requests
+import pytz
 from prometheus_client import Summary, Gauge
 from pimetrics.probe import APIProbe
 from src.pgconnector import DBError
@@ -58,6 +59,7 @@ class CovidCountryProbe(CovidProbe):
         def nonetozero(val):
             return val if val is not None else 0
         output = {}
+        last_updated = self.dbconnector.get_last_updated() if self.dbconnector else None
         stats = self.call('v1/stats')
         if stats:
             for entry in stats['data']['covid19Stats']:
@@ -66,6 +68,9 @@ class CovidCountryProbe(CovidProbe):
                     if country not in self.bad_countries:
                         logging.warning(f'Could not find country code for "{country}". Skipping ...')
                         self.bad_countries.append(country)
+                    continue
+                update = pytz.UTC.localize(datetime.strptime(entry['lastUpdate'], '%Y-%m-%dT%H:%M:%S+00:00'))
+                if last_updated and country in last_updated.keys() and update <= last_updated[country]:
                     continue
                 if country not in output:
                     output[country] = {

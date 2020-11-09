@@ -12,7 +12,6 @@ class CovidPGConnector(PostgresConnector):
 
     def _init_db(self):
         super()._init_db()
-        self._record_latest()
 
     def _build_db(self):
         conn = None
@@ -55,61 +54,6 @@ class CovidPGConnector(PostgresConnector):
             if conn:
                 conn.close()
 
-    def _record_entry(self, country, confirmed, deaths, recovered):
-        self.reported[country] = {
-            'confirmed': confirmed,
-            'deaths': deaths,
-            'recovered': recovered
-        }
-
-    def _record_latest(self):
-        conn = None
-        try:
-            conn = self.connect()
-            cur = conn.cursor()
-            cur.execute("""
-                SELECT country_name, confirmed, death, recovered FROM covid19 AS a
-                    WHERE a.time = (SELECT MAX(time) FROM covid19 AS b WHERE a.country_name = b.country_name)
-                    ORDER BY time, country_name
-            """)
-            for entry in cur.fetchall():
-                self._record_entry(entry[0], entry[1], entry[2], entry[3])
-            cur.close()
-        except (Exception, psycopg2.DatabaseError) as error:
-            logging.critical(f'Failed to get data: {error}')
-        finally:
-            if conn:
-                conn.close()
-
-    def _should_report(self, country, confirmed, deaths, recovered):
-        return country not in self.reported or \
-               confirmed != self.reported[country]['confirmed'] or \
-               deaths != self.reported[country]['deaths'] or \
-               recovered != self.reported[country]['recovered']
-
-    def add(self, country_code, country_name, confirmed, deaths, recovered, recorded=None):
-        self._init_db()
-        if self._should_report(country_name, confirmed, deaths, recovered):
-            if recorded is None:
-                recorded = datetime.now()
-            conn = None
-            try:
-                conn = self.connect()
-                curr = conn.cursor()
-                curr.execute("""
-                    INSERT INTO covid19(time, country_code, country_name, confirmed, death, recovered)
-                    VALUES(%s,%s,%s,%s,%s,%s)
-                """,
-                             (recorded, country_code, country_name, confirmed, deaths, recovered,))
-                curr.close()
-                conn.commit()
-                self._record_entry(country_name, confirmed, deaths, recovered)
-            except (Exception, psycopg2.DatabaseError) as error:
-                logging.critical(f'Failed to insert data: {error}')
-            finally:
-                if conn:
-                    conn.close()
-
     def addmany(self, records):
         self._init_db()
         now = datetime.now()
@@ -123,7 +67,6 @@ class CovidPGConnector(PostgresConnector):
                 details['recovered']
             ]
             for country, details in records.items()
-            if self._should_report(country, details['confirmed'], details['deaths'], details['recovered'])
         ]
         if changes:
             conn = None
@@ -136,8 +79,6 @@ class CovidPGConnector(PostgresConnector):
                 """, changes)
                 curr.close()
                 conn.commit()
-                for (recorded, code, country, confirmed, deaths, recovered) in changes:
-                    self._record_entry(country, confirmed, deaths, recovered)
                 logging.debug(f'{len(changes)} records added')
             except (Exception, psycopg2.DatabaseError) as error:
                 logging.critical(f'Failed to insert data: {error}')
@@ -184,3 +125,22 @@ class CovidPGConnector(PostgresConnector):
             if conn:
                 conn.close()
         return entry[0] if entry else None
+
+    def get_last_updated(self):
+        conn = None
+        last_updates = dict()
+        try:
+            conn = self.connect()
+            cur = conn.cursor()
+            cur.execute("""
+                SELECT country_name, max(time) FROM covid19 GROUP BY country_name
+            """)
+            for entry in cur.fetchall():
+                last_updates[entry[0]] = entry[1]
+            cur.close()
+        except (Exception, psycopg2.DatabaseError) as error:
+            logging.critical(f'Failed to get data: {error}')
+        finally:
+            if conn:
+                conn.close()
+        return last_updates

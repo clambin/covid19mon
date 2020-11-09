@@ -50,7 +50,7 @@ def get_configuration(args=None):
 def print_configuration(config):
     redacted = copy.deepcopy(config)
     if redacted.apikey:
-        redacted.apikey = '*'*len(redacted.apikey)
+        redacted.apikey = '*' * len(redacted.apikey)
     if redacted.postgres_password:
-        redacted.postgres_password = '*'*12
+        redacted.postgres_password = '*' * 12
     return ', '.join([f'{key}={val}' for key, val in vars(redacted).items()])

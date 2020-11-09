@@ -1,5 +1,6 @@
 import os
 import datetime
+import pytz
 import psycopg2
 import psycopg2.errors
 from src.covidpgconnector import CovidPGConnector
@@ -34,7 +35,15 @@ def test_pgconnector():
     finally:
         cur.close()
         conn.close()
-    connector.add('BE', 'Belgium', 3, 2, 1)
+    connector.addmany({
+        'Belgium': {
+            'code': 'BE',
+            'confirmed': 3,
+            'deaths': 2,
+            'recovered': 1,
+            'time': datetime.datetime(2020, 11, 1)
+        }
+    })
     rows = connector.list()
     assert len(rows) == 1
     assert len(rows[0]) == 6
@@ -46,19 +55,10 @@ def test_pgconnector():
     connector.addmany({
         'Belgium': {
             'code': 'BE',
-            'confirmed': 3,
-            'deaths': 2,
-            'recovered': 1
-        }
-    })
-    rows = connector.list()
-    assert len(rows) == 1
-    connector.addmany({
-        'Belgium': {
-            'code': 'BE',
             'confirmed': 6,
             'deaths': 4,
-            'recovered': 2
+            'recovered': 2,
+            'time': datetime.datetime(2020, 11, 2)
         }
     })
     rows = connector.list()
@@ -71,11 +71,13 @@ def test_pgconnector():
     assert rows[1][3] == 6
     assert rows[1][4] == 4
     assert rows[1][5] == 2
-    connector.add('BE', 'Belgium', 0, 0, 0, datetime.datetime(2000, 1, 1))
     entry = connector.get_first('Belgium')
-    assert entry.strftime('%Y-%m-%d') == '2000-01-01'
+    assert entry.strftime('%Y-%m-%d') == '2020-11-01'
     entry = connector.get_first('Not a country')
     assert entry is None
     connector2 = get_connector()
     connector2._init_db()
-    assert connector2.reported == {'Belgium': {'confirmed': 6.0, 'deaths': 4.0, 'recovered': 2.0}}
+    last_updated = connector2.get_last_updated()
+    assert len(last_updated.keys()) == 1
+    assert 'Belgium' in last_updated
+    assert last_updated['Belgium'] == pytz.UTC.localize(datetime.datetime(2020, 11, 2))

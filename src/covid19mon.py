@@ -20,7 +20,7 @@ def initialise(configuration):
             user=configuration.postgres_user,
             password=configuration.postgres_password
         )
-        scheduler.register(PopulationProbe(configuration.apikey, populationconn), 60*60*24)
+        scheduler.register(PopulationProbe(configuration.apikey, populationconn), 60 * 60 * 24)
 
         covidconn = CovidPGConnector(
             host=configuration.postgres_host,
