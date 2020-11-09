@@ -1,5 +1,5 @@
-kind: Deployment
-apiVersion: apps/v1
+apiVersion: batch/v1beta1
+kind: CronJob
 metadata:
   name: covid19mon
   labels:
@@ -9,65 +9,40 @@ metadata:
     app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
     commit_id: "__CI_COMMIT_SHORT_SHA__"
 spec :
-  replicas: 1
-  selector:
-    matchLabels:
-      app: covid19mon
-  template:
-    metadata:
-      labels:
-        app: covid19mon
-      annotations:
-        app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
-        app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
-        commit_id: "__CI_COMMIT_SHORT_SHA__"
+  schedule: "*/20 * * * *"
+  jobTemplate:
     spec:
-      restartPolicy: Always
-      containers:
-        - name: covid19mon
-          image: clambin/covid19mon:__TAG__
-          imagePullPolicy: Always
-          env:
-          - name: apikey
-            valueFrom:
-              secretKeyRef:
+      template:
+        metadata:
+          app.gitlab.com/app: "__CI_PROJECT_PATH_SLUG__"
+          app.gitlab.com/env: "__CI_ENVIRONMENT_SLUG__"
+          commit_id: "__CI_COMMIT_SHORT_SHA__"
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: covid19mon
+            image: clambin/covid19mon:__TAG__
+            imagePullPolicy: Always
+            envFrom:
+            - secretRef:
                 name: covid19mon
-                key: apikey
-          - name: pg_host
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: pg_host
-          - name: pg_port
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: pg_port
-          - name: pg_database
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: pg_database
-          - name: pg_user
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: pg_user
-          - name: pg_password
-            valueFrom:
-              secretKeyRef:
-                name: covid19mon
-                key: pg_password
-          args:
-            - '--apikey=$(apikey)'
-            - '--postgres-host=$(pg_host)'
-            - '--postgres-port=$(pg_port)'
-            - '--postgres-database=$(pg_database)'
-            - '--postgres-user=$(pg_user)'
-            - '--postgres-password=$(pg_password)'
+            args:
+              - '--once'
+              - '--apikey=$(apikey)'
+              - '--postgres-host=$(pg_host)'
+              - '--postgres-port=$(pg_port)'
+              - '--postgres-user=$(pg_database)'
+              - '--postgres-user=$(pg_user)'
+              - '--postgres-password=$(pg_password)'
+            resources:
+              requests:
+                cpu: 3m
+                memory: 25Mi
+              limits:
+                memory: 50Mi
 ---
-kind: Deployment
 apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: covid19api
   labels:
@@ -95,32 +70,9 @@ spec:
         - name: covid19api
           image: clambin/covid19api:__TAG__
           imagePullPolicy: Always
-          env:
-            - name: pg_host
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: pg_host
-            - name: pg_port
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: pg_port
-            - name: pg_database
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: pg_database
-            - name: pg_user
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: pg_user
-            - name: pg_password
-              valueFrom:
-                secretKeyRef:
-                  name: covid19mon
-                  key: pg_password
+          envFrom:
+            - secretRef:
+                name: covid19mon
           args:
             - '--debug'
             - '--postgres-host=$(pg_host)'
@@ -128,6 +80,26 @@ spec:
             - '--postgres-database=$(pg_database)'
             - '--postgres-user=$(pg_user)'
             - '--postgres-password=$(pg_password)'
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 20m
+              memory: 30Mi
+            limits:
+              memory: 100Mi
 ---
 apiVersion: v1
 kind: Service
