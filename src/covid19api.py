@@ -4,6 +4,7 @@ import json
 import logging
 import re
 from datetime import datetime, date
+import waitress
 from src.covidpgconnector import CovidPGConnector
 from src.version import version
 from src.configuration import print_configuration
@@ -152,7 +153,7 @@ def covid19api(configuration):
         configuration.postgres_host, configuration.postgres_port,
         configuration.postgres_database,
         configuration.postgres_user, configuration.postgres_password))
-    app.run(debug=False, host='0.0.0.0')  # nosec
+    waitress.serve(app, host='0.0.0.0', port=configuration.port)  # nosec
 
 
 if __name__ == '__main__':
