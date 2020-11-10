@@ -52,6 +52,7 @@ class CovidCountryProbe(CovidProbe):
         if self.dbconnector:
             try:
                 self.dbconnector.addmany(output)
+                logging.info(f'Updated {len(output)} records')
             except DBError as err:
                 logging.error(f'Could not insert data in covid19 db: {err}')
 
