@@ -44,6 +44,8 @@ def get_configuration(args=None):
                         help='Postgres DB user name')
     parser.add_argument('--postgres-password',
                         help='Postgres DB password')
+    parser.add_argument('--pushgateway',
+                        help='URL of Prometheus pushgateway server')
     return parser.parse_args(args)
 
 

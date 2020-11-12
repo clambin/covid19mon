@@ -7,6 +7,7 @@ from prometheus_client import Summary, Gauge
 from pimetrics.probe import APIProbe
 from src.pgconnector import DBError
 from src.countries import country_codes
+from src.metrics import MetricsPusher
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
 GAUGES = {
@@ -38,37 +39,40 @@ class CovidProbe(APIProbe, ABC):
 
 
 class CovidCountryProbe(CovidProbe):
-    def __init__(self, api_key, dbconnector=None):
+    def __init__(self, api_key, dbconnector=None, pushgateway_url=None):
         super().__init__(api_key)
-        self.countries = None
-        self.dbconnector = dbconnector
-        self.bad_countries = []
+        self._countries = None
+        self._bad_countries = []
+        self._dbconnector = dbconnector
+        self._pushgateway = MetricsPusher(pushgateway_url) if pushgateway_url else None
 
     def call(self, endpoint, country=None):
         params = {'country': country} if country else None
         return super().call(endpoint, params)
 
     def report(self, output):
-        if self.dbconnector:
+        if self._dbconnector:
             try:
-                self.dbconnector.addmany(output)
+                self._dbconnector.addmany(output)
                 logging.info(f'Updated {len(output)} records')
             except DBError as err:
                 logging.error(f'Could not insert data in covid19 db: {err}')
+        if self._pushgateway:
+            self._pushgateway.report(output)
 
     def measure(self):
         def nonetozero(val):
             return val if val is not None else 0
         output = {}
-        last_updated = self.dbconnector.get_last_updated() if self.dbconnector else None
+        last_updated = self._dbconnector.get_last_updated() if self._dbconnector else None
         stats = self.call('v1/stats')
         if stats:
             for entry in stats['data']['covid19Stats']:
                 country = entry['country']
                 if country not in country_codes:
-                    if country not in self.bad_countries:
+                    if country not in self._bad_countries:
                         logging.warning(f'Could not find country code for "{country}". Skipping ...')
-                        self.bad_countries.append(country)
+                        self._bad_countries.append(country)
                     continue
                 update = pytz.UTC.localize(datetime.strptime(entry['lastUpdate'], '%Y-%m-%dT%H:%M:%S+00:00'))
                 if last_updated and country in last_updated.keys() and update <= last_updated[country]:
