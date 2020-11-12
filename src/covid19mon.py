@@ -32,8 +32,12 @@ def initialise(configuration):
     else:
         covidconn = None
 
-    scheduler.register(CovidCountryProbe(configuration.apikey, covidconn), configuration.interval)
-    scheduler.register(CovidLastUpdateProbe(configuration.apikey), configuration.interval)
+    scheduler.register(
+        CovidCountryProbe(configuration.apikey, covidconn, configuration.pushgateway), configuration.interval
+    )
+    scheduler.register(
+        CovidLastUpdateProbe(configuration.apikey), configuration.interval
+    )
 
     return scheduler
 
