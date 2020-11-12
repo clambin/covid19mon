@@ -54,11 +54,11 @@ class CovidCountryProbe(CovidProbe):
         if self._dbconnector:
             try:
                 self._dbconnector.addmany(output)
-                logging.info(f'Updated {len(output)} records')
             except DBError as err:
                 logging.error(f'Could not insert data in covid19 db: {err}')
         if self._pushgateway:
             self._pushgateway.report(output)
+        logging.info(f'{len(output)} new records')
 
     def measure(self):
         def nonetozero(val):

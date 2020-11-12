@@ -1,3 +1,4 @@
+import logging
 from prometheus_client import Gauge, CollectorRegistry, push_to_gateway
 
 
@@ -18,6 +19,7 @@ class MetricsPusher:
             self._gauges['reported'].labels(country).set(self._reported[country])
         if self._pushgateway:
             push_to_gateway(self._pushgateway, job=self._job, registry=self._registry)
+            logging.debug(f'pushed {len(self._reported)} records. records: {self._reported}')
 
     def reported(self):
         return self._reported
