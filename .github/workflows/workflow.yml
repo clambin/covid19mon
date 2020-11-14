@@ -24,12 +24,27 @@ jobs:
         pipenv run safety check
         pipenv run bandit -r -x ./tests .
     - name: Test with pytest
+      services:
+        postgres:
+          image: postgres
+          env:
+            POSTGRES_PASSWORD: postgres
       run: |
+        export POSTGRES_HOST=postgres
+        export POSTGRES_PORT=5432
+        export POSTGRES_DB=postgres
+        export POSTGRES_USER=postgres
+        export POSTGRES_PASSWORD=postgres
         pipenv run pipenv run pytest --cov=. --cov-report=xml
     - name: Upload codecov
       uses: codecov/codecov-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
+  docker:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
     - name: Set up Docker Buildx
@@ -41,7 +56,7 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Docker meta covid19mon
-      id: docker_meta
+      id: docker_meta_mon
       uses: crazy-max/ghaction-docker-meta@v1
       with:
         images: clambin/covid19mon
@@ -53,10 +68,10 @@ jobs:
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm,linux/arm64
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.docker_meta.outputs.tags }}
-        labels: ${{ steps.docker_meta.outputs.labels }}
+        tags: ${{ steps.docker_meta_mon.outputs.tags }}
+        labels: ${{ steps.docker_meta_mon.outputs.labels }}
     - name: Docker meta covid19api
-      id: docker_meta_2
+      id: docker_meta_api
       uses: crazy-max/ghaction-docker-meta@v1
       with:
         images: clambin/covid19api
@@ -68,8 +83,13 @@ jobs:
         file: ./Dockerfile-covid19api
         platforms: linux/amd64,linux/arm,linux/arm64
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.docker_meta_2.outputs.tags }}
-        labels: ${{ steps.docker_meta_2.outputs.labels }}
+        tags: ${{ steps.docker_meta_api.outputs.tags }}
+        labels: ${{ steps.docker_meta_api.outputs.labels }}
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
     - name: Set k8s context
       uses: Azure/k8s-set-context@v1
       with:
