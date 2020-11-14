@@ -3,7 +3,21 @@ name: Python package
 on: [push, pull_request]
 
 jobs:
+  container-job:
+    runs-on: ubuntu-latest
+    container: node:10.18-jessie
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
   build:
+    needs: container-job
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -24,11 +38,6 @@ jobs:
         pipenv run safety check
         pipenv run bandit -r -x ./tests .
     - name: Test with pytest
-      services:
-        postgres:
-          image: postgres
-          env:
-            POSTGRES_PASSWORD: postgres
       run: |
         export POSTGRES_HOST=postgres
         export POSTGRES_PORT=5432
