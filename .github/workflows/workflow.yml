@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    # container: node:10.18-jessie
+    container: node:10.18-jessie
     services:
       postgres:
         image: postgres
@@ -41,7 +41,7 @@ jobs:
         export POSTGRES_DB=postgres
         export POSTGRES_USER=postgres
         export POSTGRES_PASSWORD=postgres
-        pipenv run pipenv run pytest --cov=. --cov-report=xml
+        cd tests && pipenv run pipenv run pytest --cov=. --cov-report=xml
     - name: Upload codecov
       uses: codecov/codecov-action@v1
       with:
