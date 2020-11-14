@@ -1,0 +1,71 @@
+name: Python package
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pipenv
+        pipenv install --dev
+    - name: Lint with flake8
+      run: |
+        pipenv run flake8 --max-line-length 120
+    - name: SAST
+      run: |
+        pipenv run safety check
+        pipenv run bandit -r -x ./tests .
+    - name: Test with pytest
+      run: |
+        pipenv run pipenv run pytest --cov=. --cov-report=xml
+    - name: Upload codecov
+      uses: codecov/codecov-action@v1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+    - name: Docker meta
+      id: docker_meta
+      uses: crazy-max/ghaction-docker-meta@v1
+      with:
+        images: [clambin/covid19mon,clambin/covid19api]
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v1
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - name: Login to DockerHub
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@v1
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        platforms: linux/amd64,linux/arm,linux/arm64
+        push: ${{ github.event_name != 'pull_request' }}
+        tags: ${{ steps.docker_meta.outputs.tags }}
+        labels: ${{ steps.docker_meta.outputs.labels }}
+    - name: Set k8s context
+      uses: Azure/k8s-set-context@v1
+      with:
+        kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    - name: Deploy to k8s
+      uses: Azure/k8s-deploy@v1
+      with:
+        namespace: default
+        manifests: |
+          manifests/covid19-deployment.yml
+        images: |
+          clambin/covid19mon:${{ steps.docker_meta.outputs.version }}
+          clambin/covid19api:${{ steps.docker_meta.outputs.version }}
+        force: true

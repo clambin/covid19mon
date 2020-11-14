@@ -1,0 +1,101 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: covid19mon
+  labels:
+    app: covid19mon
+spec :
+  schedule: "*/20 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: covid19mon
+            image: clambin/covid19mon:develop
+            imagePullPolicy: Always
+            envFrom:
+            - secretRef:
+                name: covid19mon
+            args:
+              - '--once'
+              - '--apikey=$(apikey)'
+              - '--postgres-host=$(pg_host)'
+              - '--postgres-port=$(pg_port)'
+              - '--postgres-user=$(pg_database)'
+              - '--postgres-user=$(pg_user)'
+              - '--postgres-password=$(pg_password)'
+            resources:
+              requests:
+                cpu: 3m
+                memory: 25Mi
+              limits:
+                memory: 50Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: covid19api
+  labels:
+    app: covid19api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: covid19api
+  template:
+    metadata:
+      labels:
+        app: covid19api
+    spec:
+      restartPolicy: Always
+      containers:
+        - name: covid19api
+          image: clambin/covid19api:develop
+          imagePullPolicy: Always
+          envFrom:
+            - secretRef:
+                name: covid19mon
+          args:
+            - '--debug'
+            - '--port=5000'
+            - '--postgres-host=$(pg_host)'
+            - '--postgres-port=$(pg_port)'
+            - '--postgres-database=$(pg_database)'
+            - '--postgres-user=$(pg_user)'
+            - '--postgres-password=$(pg_password)'
+          ports:
+            - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 20m
+              memory: 30Mi
+            limits:
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: covid19api
+  labels:
+    app: covid19api
+spec:
+  selector:
+    app: covid19api
+  ports:
+    - port: 5000
+      targetPort: 5000
