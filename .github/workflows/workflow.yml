@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: python:3.7-slim
+    #container: python:3.7-slim
     services:
       postgres:
         image: postgres
