@@ -94,10 +94,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.docker_meta_api.outputs.tags }}
         labels: ${{ steps.docker_meta_api.outputs.labels }}
-  deploy:
-    needs: docker
-    runs-on: ubuntu-latest
-    steps:
     - uses: actions/checkout@v2
     - name: Set k8s context
       uses: Azure/k8s-set-context@v1
@@ -110,6 +106,6 @@ jobs:
         manifests: |
           manifests/covid19-deployment.yml
         images: |
-          clambin/covid19mon:${{ steps.docker_meta.outputs.version }}
-          clambin/covid19api:${{ steps.docker_meta.outputs.version }}
+          clambin/covid19mon:${{ steps.docker_meta_mon.outputs.version }}
+          clambin/covid19api:${{ steps.docker_meta_api.outputs.version }}
         force: true
