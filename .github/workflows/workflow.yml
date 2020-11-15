@@ -104,18 +104,14 @@ jobs:
       run: echo "::set-output name=sha_short::sha-$(echo ${GITHUB_SHA} | cut -c1-7)"
     - name: debug
       run: |
-        echo "${{ steps.docker_meta_mon.outputs.version }}"
-        echo "${{ steps.docker_meta_mon.outputs.tags }}"
-        echo "${{ steps.docker_meta_api.outputs.version }}"
-        echo "${{ steps.docker_meta_api.outputs.tags }}"
-        echo "${{ github.sha }}"
-        echo ${{ steps.image_tag.outputs.sha_short }}
+        echo "${GITHUB_SHA}"
+        echo "${{ steps.image_tag.outputs.sha_short }}"
     - uses: Azure/k8s-deploy@v1
       with:
         namespace: default
         manifests: |
           manifests/covid19-deployment.yml
         images: |
-          clambin/covid19mon:${{ steps.docker_meta_mon.outputs.version }}
-          clambin/covid19api:${{ steps.docker_meta_api.outputs.version }}
+          clambin/covid19mon:${{ steps.image_tag.outputs.sha_short }}
+          clambin/covid19api:${{ steps.image_tag.outputs.sha_short }}
         force: true
