@@ -68,6 +68,7 @@ jobs:
       id: docker_meta_mon
       uses: crazy-max/ghaction-docker-meta@v1
       with:
+        tag-sha: true
         images: clambin/covid19mon
     - name: Build and push covid19mon
       id: docker_build
@@ -83,6 +84,7 @@ jobs:
       id: docker_meta_api
       uses: crazy-max/ghaction-docker-meta@v1
       with:
+        tag-sha: true
         images: clambin/covid19api
     - name: Build and push covid19api
       id: docker_build_2
