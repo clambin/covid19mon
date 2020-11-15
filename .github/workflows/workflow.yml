@@ -101,6 +101,12 @@ jobs:
       uses: Azure/k8s-set-context@v1
       with:
         kubeconfig: ${{ secrets.KUBE_CONFIG }}
+    - name: debug
+      run: |
+        echo ${{ steps.docker_meta_mon.outputs.version }}
+        echo ${{ steps.docker_meta_mon.outputs.tags }}
+        echo ${{ steps.docker_meta_api.outputs.version }}
+        echo ${{ steps.docker_meta_api.outputs.tags }}
     - name: Deploy to k8s
       uses: Azure/k8s-deploy@v1
       with:
