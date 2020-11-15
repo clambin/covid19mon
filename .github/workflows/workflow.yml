@@ -96,7 +96,6 @@ jobs:
         push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.docker_meta_api.outputs.tags }}
         labels: ${{ steps.docker_meta_api.outputs.labels }}
-    - uses: actions/checkout@v2
     - name: Set k8s context
       uses: Azure/k8s-set-context@v1
       with:
@@ -107,6 +106,7 @@ jobs:
         echo "${{ steps.docker_meta_mon.outputs.tags }}"
         echo "${{ steps.docker_meta_api.outputs.version }}"
         echo "${{ steps.docker_meta_api.outputs.tags }}"
+        echo "${{ github.sha }}"
     - name: Deploy to k8s
       uses: Azure/k8s-deploy@v1
       with:
