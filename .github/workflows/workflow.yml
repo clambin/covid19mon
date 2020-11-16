@@ -36,7 +36,7 @@ jobs:
         pipenv install --dev
     - name: flake8
       run: |
-        pipenv run flake8 --max-line-length 120-
+        pipenv run flake8 --max-line-length 120
     - name: SAST
       run: |
         pipenv run safety check
