@@ -36,11 +36,11 @@ jobs:
         pipenv install --dev
     - name: flake8
       run: |
-        flake8 --max-line-length 120-
+        pipenv run flake8 --max-line-length 120-
     - name: SAST
       run: |
-        safety check
-        bandit -r -x ./tests .
+        pipenv run safety check
+        pipenv run bandit -r -x ./tests .
     - name: Test with pytest
       run: |
         export POSTGRES_HOST=postgres
