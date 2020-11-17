@@ -90,7 +90,7 @@ jobs:
         tags: ${{ steps.docker_meta_api.outputs.tags }}
         labels: ${{ steps.docker_meta_api.outputs.labels }}
   deploy:
-    needs: [build-covid19mon, build-covid19api]
+    needs: build
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request'
     steps:
