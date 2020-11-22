@@ -18,6 +18,7 @@ postgres = "*"
 flask = "*"
 pytz = "*"
 waitress = "*"
+prometheus-flask-exporter = "*"
 
 [requires]
 python_version = "3.7"

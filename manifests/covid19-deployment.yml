@@ -50,6 +50,9 @@ spec:
     metadata:
       labels:
         app: covid19api
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
     spec:
       restartPolicy: Always
       containers:

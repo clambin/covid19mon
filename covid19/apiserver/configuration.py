@@ -12,7 +12,7 @@ def get_configuration(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version', version=f'%(prog)s {version}')
     parser.add_argument('--port', type=int, default=default_port,
-                        help=f'Prometheus listener port (default: {default_port})')
+                        help=f'API server port (default: {default_port})')
     parser.add_argument('--debug', action='store_true',
                         help='Set logging level to debug')
     parser.add_argument('--postgres-host',

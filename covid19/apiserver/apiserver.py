@@ -3,6 +3,8 @@ import cProfile
 import json
 import logging
 import waitress
+from prometheus_flask_exporter import PrometheusMetrics
+
 from covid19.apiserver.covid19api import Covid19API
 from covid19.version import version
 from covid19.apiserver.configuration import print_configuration
@@ -12,10 +14,13 @@ from flask import Flask, request
 
 
 app = Flask("test")
+flask_metrics = PrometheusMetrics(app)
+flask_metrics.info('covid19api', 'Grafana API server for covid19mon data', version=version)
 g_covid19api = Covid19API()
 
 
 @app.route("/")
+@flask_metrics.do_not_track()
 def index():
     return "OK"
 
