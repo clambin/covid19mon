@@ -1,4 +1,3 @@
-import pytest
 from covid19.apiserver.configuration import get_configuration, print_configuration
 
 
