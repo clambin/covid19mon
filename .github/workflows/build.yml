@@ -69,7 +69,7 @@ jobs:
           {{major}}.{{minor}}
     - name: Show tags
       run: |
-        echo ${{ steps.docker_meta_mon.outputs.tags }}
+        echo "${{ steps.docker_meta_mon.outputs.tags }}"
     - name: Build and push covid19mon
       uses: docker/build-push-action@v2
       with:
