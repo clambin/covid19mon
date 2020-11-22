@@ -14,7 +14,7 @@ class PopulationProbe(APIProbe):
         self.dbconnector = dbconnector
 
     def report(self, output):
-        self.dbconnector.add(output)
+        self.dbconnector.addmany(output)
 
     def process(self, output):
         codes = country_codes.values()

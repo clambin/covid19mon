@@ -2,7 +2,7 @@ import os
 from covid19.monitor.configuration import get_configuration
 from covid19.monitor.monitor import main
 from covid19.pgconnectors.covid import CovidPGConnector
-from tests.pgconnectors.test_pgconnector import get_dbenv
+from tests.pgconnectors.test_covid import get_dbenv
 
 
 def test_main():

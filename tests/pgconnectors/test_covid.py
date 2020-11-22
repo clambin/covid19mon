@@ -3,6 +3,7 @@ import datetime
 import pytz
 import psycopg2
 import psycopg2.errors
+import pytest
 from covid19.pgconnectors.covid import CovidPGConnector
 
 
@@ -23,18 +24,12 @@ def get_connector():
 def test_pgconnector():
     connector = get_connector()
     assert connector
-    conn = connector.connect()
-    assert conn
-    cur = conn.cursor()
-    assert cur
-    try:
+    connector._drop_db()
+    with pytest.raises(psycopg2.errors.UndefinedTable):
+        conn = connector.connect()
+        cur = conn.cursor()
         cur.execute("DELETE FROM covid19")
         conn.commit()
-    except psycopg2.errors.UndefinedTable:
-        pass
-    finally:
-        cur.close()
-        conn.close()
     connector.addmany({
         'Belgium': {
             'code': 'BE',
@@ -71,6 +66,14 @@ def test_pgconnector():
     assert rows[1][3] == 6
     assert rows[1][4] == 4
     assert rows[1][5] == 2
+    rows = connector.list('2020-11-02')
+    assert len(rows) == 1
+    assert len(rows[0]) == 6
+    assert rows[0][1] == 'BE'
+    assert rows[0][2] == 'Belgium'
+    assert rows[0][3] == 3
+    assert rows[0][4] == 2
+    assert rows[0][5] == 1
     entry = connector.get_first('Belgium')
     assert entry.strftime('%Y-%m-%d') == '2020-11-01'
     entry = connector.get_first('Not a country')

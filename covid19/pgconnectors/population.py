@@ -41,7 +41,7 @@ class PopulationPGConnector(PostgresConnector):
             if conn:
                 conn.close()
 
-    def add(self, records):
+    def addmany(self, records):
         self._init_db()
         conn = None
         try:
@@ -68,7 +68,7 @@ class PopulationPGConnector(PostgresConnector):
             conn = self.connect()
             cur = conn.cursor()
             cur.execute("""
-                SELECT country_code, population FROM population
+                SELECT country_code, population FROM population ORDER BY 1
             """)
             for fetched in cur.fetchall():
                 rows[fetched[0]] = fetched[1]
