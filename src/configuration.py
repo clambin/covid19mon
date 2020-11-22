@@ -21,7 +21,6 @@ def get_configuration(args=None):
     default_pg_port = 5432
     default_pg_database = 'covid19'
 
-    # FIXME: allow credentials to be retrieved from file rather than cmdline options
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', action='version', version=f'%(prog)s {version}')
     parser.add_argument('--interval', type=int, default=default_interval,

@@ -27,6 +27,7 @@ spec :
               - '--postgres-user=$(pg_database)'
               - '--postgres-user=$(pg_user)'
               - '--postgres-password=$(pg_password)'
+              - '--pushgateway=http://prometheus-pushgateway.monitoring.svc:9091'
             resources:
               requests:
                 cpu: 3m

@@ -1,7 +1,6 @@
 from abc import ABC
 import logging
 from datetime import datetime
-import requests
 import pytz
 from prometheus_client import Summary, Gauge
 from pimetrics.probe import APIProbe
@@ -17,25 +16,15 @@ GAUGES = {
 
 class CovidProbe(APIProbe, ABC):
     def __init__(self, api_key):
-        super().__init__('https://covid-19-coronavirus-statistics.p.rapidapi.com/')
-        self.api_key = api_key
+        super().__init__('https://covid-19-coronavirus-statistics.p.rapidapi.com')
+        self.headers = {
+            'x-rapidapi-key': api_key,
+            'x-rapidapi-host': 'covid-19-coronavirus-statistics.p.rapidapi.com'
+        }
 
-    def call(self, endpoint, params=None):
+    def apicall(self, endpoint, params=None):
         with REQUEST_TIME.labels(self.url, endpoint).time():
-            result = None
-            try:
-                headers = {
-                    'x-rapidapi-key': self.api_key,
-                    'x-rapidapi-host': 'covid-19-coronavirus-statistics.p.rapidapi.com'
-                }
-                response = self.get(endpoint, headers, params=params)
-                if response.status_code == 200:
-                    result = response.json()
-                else:
-                    logging.error("%d - %s" % (response.status_code, response.reason))
-            except requests.exceptions.RequestException as err:
-                logging.warning(f'Failed to call "{self.url}": "{err}')
-            return result
+            return self.call(endpoint, headers=self.headers, params=params)
 
 
 class CovidCountryProbe(CovidProbe):
@@ -46,9 +35,9 @@ class CovidCountryProbe(CovidProbe):
         self._dbconnector = dbconnector
         self._pushgateway = MetricsPusher(pushgateway_url) if pushgateway_url else None
 
-    def call(self, endpoint, country=None):
+    def apicall(self, endpoint, country=None):
         params = {'country': country} if country else None
-        return super().call(endpoint, params)
+        return super().apicall(endpoint, params)
 
     def report(self, output):
         if self._dbconnector:
@@ -65,7 +54,7 @@ class CovidCountryProbe(CovidProbe):
             return val if val is not None else 0
         output = {}
         last_updated = self._dbconnector.get_last_updated() if self._dbconnector else None
-        stats = self.call('v1/stats')
+        stats = self.apicall('/v1/stats')
         if stats:
             for entry in stats['data']['covid19Stats']:
                 country = entry['country']
@@ -102,7 +91,7 @@ class CovidLastUpdateProbe(CovidProbe):
 
     def measure(self):
         output = {}
-        stats = self.call('v1/total')
+        stats = self.apicall('/v1/total')
         if stats:
             utc_time = datetime.strptime(stats['data']['lastReported'], "%Y-%m-%dT%H:%M:%S+00:00")
             output['lastReported'] = (utc_time - datetime(1970, 1, 1)).total_seconds()

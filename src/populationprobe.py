@@ -5,7 +5,7 @@ from src.countries import country_codes
 
 class PopulationProbe(APIProbe):
     def __init__(self, api_key, dbconnector=None):
-        super().__init__('https://ajayakv-rest-countries-v1.p.rapidapi.com/')
+        super().__init__('https://ajayakv-rest-countries-v1.p.rapidapi.com')
         self.headers = {
             'x-rapidapi-host': "ajayakv-rest-countries-v1.p.rapidapi.com",
             'x-rapidapi-key': api_key
@@ -29,9 +29,5 @@ class PopulationProbe(APIProbe):
         return output
 
     def measure(self):
-        response = self.get('rest/v1/all', headers=self.headers)
-        if response.status_code == 200:
-            return {entry['alpha2Code']: entry['population'] for entry in response.json()}
-        else:
-            logging.warning(f'Failed to get country stats: {response.status_code} - {response.reason}')
-        return dict()
+        response = self.call('/rest/v1/all', headers=self.headers)
+        return {entry['alpha2Code']: entry['population'] for entry in response}
