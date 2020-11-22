@@ -4,9 +4,9 @@ from datetime import datetime
 import pytz
 from prometheus_client import Summary, Gauge
 from pimetrics.probe import APIProbe
-from src.pgconnector import DBError
-from src.countries import country_codes
-from src.metrics import MetricsPusher
+from covid19.pgconnectors.pgconnector import DBError
+from covid19.probes.countries import country_codes
+from covid19.metrics import MetricsPusher
 
 REQUEST_TIME = Summary('request_processing_seconds', 'Time spent processing request', ['server', 'endpoint'])
 GAUGES = {

@@ -1,4 +1,4 @@
-from src.metrics import MetricsPusher
+from covid19.metrics import MetricsPusher
 
 
 def test_metrics():

@@ -3,7 +3,7 @@ import datetime
 import pytz
 import psycopg2
 import psycopg2.errors
-from src.covidpgconnector import CovidPGConnector
+from covid19.pgconnectors.covid import CovidPGConnector
 
 
 def get_dbenv():

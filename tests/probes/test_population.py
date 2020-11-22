@@ -1,7 +1,7 @@
 import os
-from src.populationprobe import PopulationProbe
-from src.populationpgconnector import PopulationPGConnector
-from tests.test_pgconnector import get_dbenv
+from covid19.probes.population import PopulationProbe
+from covid19.pgconnectors.population import PopulationPGConnector
+from tests.pgconnectors.test_pgconnector import get_dbenv
 
 
 def get_connector():

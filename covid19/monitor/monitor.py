@@ -1,12 +1,12 @@
 import logging
 from prometheus_client import start_http_server
 from pimetrics.scheduler import Scheduler
-from src.version import version
-from src.configuration import print_configuration
-from src.populationprobe import PopulationProbe
-from src.populationpgconnector import PopulationPGConnector
-from src.covidprobe import CovidCountryProbe, CovidLastUpdateProbe
-from src.covidpgconnector import CovidPGConnector
+from covid19.version import version
+from covid19.monitor.configuration import print_configuration
+from covid19.probes.population import PopulationProbe
+from covid19.pgconnectors.population import PopulationPGConnector
+from covid19.probes.covid import CovidCountryProbe, CovidLastUpdateProbe
+from covid19.pgconnectors.covid import CovidPGConnector
 
 
 def initialise(configuration):
@@ -42,7 +42,7 @@ def initialise(configuration):
     return scheduler
 
 
-def covid19mon(configuration):
+def main(configuration):
     logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S',
                         level=logging.DEBUG if configuration.debug else logging.INFO)
     logging.info(f'Starting covid19mon v{version}')

@@ -1,17 +1,4 @@
-import argparse
-import pytest
-from src.configuration import str2bool, get_configuration, print_configuration
-
-
-def test_str2bool():
-    assert str2bool(True) is True
-    for arg in ['yes', 'true', 't', 'y', '1', 'on']:
-        assert str2bool(arg) is True
-    for arg in ['no', 'false', 'f', 'n', '0', 'off']:
-        assert str2bool(arg) is False
-    with pytest.raises(argparse.ArgumentTypeError) as e:
-        assert str2bool('maybe')
-    assert str(e.value) == 'Boolean value expected.'
+from covid19.monitor.configuration import get_configuration, print_configuration
 
 
 def test_default_config():

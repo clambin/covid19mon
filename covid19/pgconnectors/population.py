@@ -1,6 +1,6 @@
 import logging
 import psycopg2
-from src.pgconnector import PostgresConnector
+from covid19.pgconnectors.pgconnector import PostgresConnector
 
 
 class PopulationPGConnector(PostgresConnector):

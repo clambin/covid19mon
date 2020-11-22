@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.covid19api import Covid19API
+from covid19.apiserver.covid19api import Covid19API
 
 
 class CovidPGConnectorStub:

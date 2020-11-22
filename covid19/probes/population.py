@@ -1,6 +1,6 @@
 import logging
 from pimetrics.probe import APIProbe
-from src.countries import country_codes
+from covid19.probes.countries import country_codes
 
 
 class PopulationProbe(APIProbe):

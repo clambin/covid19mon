@@ -1,8 +1,8 @@
 import os
-from src.configuration import get_configuration
-from src.covid19mon import covid19mon
-from src.covidpgconnector import CovidPGConnector
-from tests.test_pgconnector import get_dbenv
+from covid19.monitor.configuration import get_configuration
+from covid19.monitor.monitor import main
+from covid19.pgconnectors.covid import CovidPGConnector
+from tests.pgconnectors.test_pgconnector import get_dbenv
 
 
 def test_main():
@@ -17,7 +17,7 @@ def test_main():
                                f'--postgres-user {user} '
                                f'--postgres-password {password}'.split())
     assert config
-    covid19mon(config)
+    main(config)
     rows = connector.list()
     assert rows
     assert len(rows) > 0

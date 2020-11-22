@@ -1,6 +1,6 @@
 import datetime
 from pimetrics.stubs import APIStub
-from src.covidprobe import CovidCountryProbe, CovidLastUpdateProbe
+from covid19.probes.covid import CovidCountryProbe, CovidLastUpdateProbe
 
 testfiles = {
     '/v1/stats': {

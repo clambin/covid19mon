@@ -4,8 +4,8 @@ import datetime
 import requests
 import logging
 import pytz
-from src.countries import country_codes
-from src.covidpgconnector import CovidPGConnector
+from covid19.probes.countries import country_codes
+from covid19.pgconnectors.covid import CovidPGConnector
 
 # You'd expect country names & codes would be an easy standard but noooooo ...
 country_mapping = {
