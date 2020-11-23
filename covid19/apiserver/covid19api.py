@@ -118,7 +118,7 @@ class Covid19API:
     def get_data(self, targets, start_time=None, end_time=None):
         # TODO: support table output: https://grafana.com/grafana/plugins/simpod-json-datasource#query
         logging.debug(f'{start_time} {end_time}')
-        key = f'targets: {targets}, start_time: {start_time}, end_time: {end_time}'
+        key = f'targets: {targets}'
         cached = self._cache.get(key)
         if cached is None:
             values, countries = self.get_data_by_time_country(end_time)
