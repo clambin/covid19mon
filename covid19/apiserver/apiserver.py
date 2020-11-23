@@ -45,6 +45,7 @@ def grafana_query():
     logging.info(f'/query - {targets} ({start_time}/{end_time}')
     metrics = g_covid19api.get_data(targets, start_time, end_time)
     logging.debug(f'/query: {json.dumps(metrics, indent=4, sort_keys=True)}')
+    logging.info('/query done')
     return json.dumps(metrics)
 
 

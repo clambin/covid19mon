@@ -52,7 +52,7 @@ class Covid19API:
             if time not in values:
                 values[time] = dict()
             if code not in values[time]:
-                values[time][code] = {}
+                values[time][code] = dict()
             values[time][code] = {'confirmed': confirmed, 'death': death, 'recovered': recovered}
             countries.add(code)
         return values, countries
