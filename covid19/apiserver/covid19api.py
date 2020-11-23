@@ -18,7 +18,6 @@ class DataCache:
     def has(self, key):
         return key in self._cache
 
-
     def len(self):
         return len(self._cache)
 
@@ -73,22 +72,21 @@ class Covid19API:
         countries = set()
         values = dict()
         all_data = self._cache.get(end_time)
-        if all_data is None:
+        if all_data is not None:
+            values, countries = all_data[0], all_data[1]
+        else:
             self._cache.clear()
-            all_data = self.covid19pg.list(end_time=end_time)
-            self._cache.add(end_time, all_data)
-        for entry in all_data:
-            time = self.datetime_to_epoch(entry[0])
-            code = entry[1]
-            confirmed = entry[3]
-            death = entry[4]
-            recovered = entry[5]
-            if time not in values:
-                values[time] = dict()
-            if code not in values[time]:
-                values[time][code] = dict()
-            values[time][code] = {'confirmed': confirmed, 'death': death, 'recovered': recovered}
-            countries.add(code)
+            for entry in self.covid19pg.list(end_time=end_time):
+                time = self.datetime_to_epoch(entry[0])
+                code = entry[1]
+                confirmed = entry[3]
+                death = entry[4]
+                recovered = entry[5]
+                if time not in values:
+                    values[time] = dict()
+                values[time][code] = {'confirmed': confirmed, 'death': death, 'recovered': recovered}
+                countries.add(code)
+            self._cache.add(end_time, (values, countries))
         return values, countries
 
     def get_data_by_time(self, values, countries, start_time):
