@@ -5,11 +5,12 @@ from covid19.apiserver.covid19api import Covid19API
 class CovidPGConnectorStub:
     def __init__(self, data):
         self.data = data
+        self._api = Covid19API()
 
     def list(self, end_time=None):
         if end_time is None:
             return self.data
-        redux = list(filter(lambda x: Covid19API.datetime_to_epoch(x[0]) <= Covid19API.grafana_date_to_epoch(end_time),
+        redux = list(filter(lambda x: self._api.datetime_to_epoch(x[0]) <= self._api.grafana_date_to_epoch(end_time),
                             self.data))
         return redux
 

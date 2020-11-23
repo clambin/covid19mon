@@ -12,6 +12,7 @@ class Covid19API:
             'active', 'active-delta'
         ]
         self.covid19pg = None
+        self._epoch_cache = dict()
 
     @property
     def targets(self):
@@ -20,17 +21,18 @@ class Covid19API:
     def set_covidpg(self, covidpg):
         self.covid19pg = covidpg
 
-    @staticmethod
-    def datetime_to_epoch(ts):
-        return int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000)
+    def datetime_to_epoch(self, ts):
+        if ts not in self._epoch_cache:
+            self._epoch_cache[ts] = int(
+                (datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000
+            )
+        return self._epoch_cache[ts]
 
-    @staticmethod
-    def grafana_date_to_epoch(ts):
-        # 2019-10-17T21:21:33.596Z
+    def grafana_date_to_epoch(self, ts):
         if ts:
             m = re.match(r'^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.(\d{3})Z', ts)
             if m:
-                return Covid19API.datetime_to_epoch(date(int(m.group(1)), int(m.group(2)), int(m.group(3))))
+                return self.datetime_to_epoch(date(int(m.group(1)), int(m.group(2)), int(m.group(3))))
         return 0
 
     @staticmethod
@@ -44,7 +46,7 @@ class Covid19API:
         countries = set()
         values = dict()
         for entry in self.covid19pg.list(end_time=end_time):
-            time = Covid19API.datetime_to_epoch(entry[0])
+            time = self.datetime_to_epoch(entry[0])
             code = entry[1]
             confirmed = entry[3]
             death = entry[4]
@@ -68,7 +70,7 @@ class Covid19API:
             'death': {country: 0 for country in countries},
             'recovered': {country: 0 for country in countries}
         }
-        skip_time = Covid19API.grafana_date_to_epoch(start_time)
+        skip_time = self.grafana_date_to_epoch(start_time)
         for time, time_data in values.items():
             for country, data in time_data.items():
                 last['confirmed'][country] = data['confirmed']

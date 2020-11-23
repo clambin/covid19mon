@@ -63,7 +63,6 @@ spec:
             - secretRef:
                 name: covid19mon
           args:
-            - '--debug'
             - '--port=5000'
             - '--postgres-host=$(pg_host)'
             - '--postgres-port=$(pg_port)'
