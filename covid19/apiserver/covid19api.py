@@ -3,6 +3,28 @@ import re
 from datetime import datetime, date
 
 
+class DataCache:
+    def __init__(self):
+        self._cache = dict()
+
+    def add(self, key, data):
+        self._cache[key] = data
+
+    def get(self, key):
+        if key in self._cache:
+            return self._cache[key]
+        return None
+
+    def len(self):
+        return len(self._cache)
+
+    def clear(self, key=None):
+        if key:
+            del self._cache[key]
+        else:
+            self._cache = dict()
+
+
 class Covid19API:
     def __init__(self):
         self._targets = [
@@ -13,6 +35,7 @@ class Covid19API:
         ]
         self.covid19pg = None
         self._epoch_cache = dict()
+        self._cache = DataCache()
 
     @property
     def targets(self):
@@ -95,10 +118,17 @@ class Covid19API:
     def get_data(self, targets, start_time=None, end_time=None):
         # TODO: support table output: https://grafana.com/grafana/plugins/simpod-json-datasource#query
         logging.debug(f'{start_time} {end_time}')
-        values, countries = self.get_data_by_time_country(end_time)
-        metrics = self.get_data_by_time(values, countries, start_time)
-        output = []
-        for target in self.targets:
-            if Covid19API.is_target(target, targets):
-                output.append(metrics[target])
-        return output
+        key = f'targets: {targets}, start_time: {start_time}, end_time: {end_time}'
+        cached = self._cache.get(key)
+        if cached is None:
+            values, countries = self.get_data_by_time_country(end_time)
+            metrics = self.get_data_by_time(values, countries, start_time)
+            cached = []
+            for target in self.targets:
+                if Covid19API.is_target(target, targets):
+                    cached.append(metrics[target])
+            self._cache.add(key, cached)
+        return cached
+
+    def clear_cache(self):
+        self._cache.clear()
