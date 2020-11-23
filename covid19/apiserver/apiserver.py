@@ -64,9 +64,10 @@ def main(configuration):
 
 if __name__ == '__main__':
     g_covid19api.set_covidpg(CovidPGConnector(
-        os.getenv('POSTGRES_HOST'),
-        os.getenv('POSTGRES_PORT'),
-        os.getenv('POSTGRES_DATABASE'),
-        os.getenv('POSTGRES_USER'),
+        os.getenv('pg_host'),
+        os.getenv('pg_port'),
+        os.getenv('pg_database'),
+        os.getenv('pg_user'),
         os.getenv('POSTGRES_PASSWORD')))
+    cProfile.run('g_covid19api.get_data([("confirmed","timeseries")])')
     cProfile.run('g_covid19api.get_data([("confirmed","timeseries")])')

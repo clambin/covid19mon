@@ -37,8 +37,7 @@ class Covid19API:
             'active', 'active-delta'
         ]
         self.covid19pg = None
-        self._epoch_cache = dict()
-        self._cache = DataCache()
+        self._epoch_cache = DataCache()
 
     @property
     def targets(self):
@@ -48,11 +47,11 @@ class Covid19API:
         self.covid19pg = covidpg
 
     def datetime_to_epoch(self, ts):
-        if ts not in self._epoch_cache:
-            self._epoch_cache[ts] = int(
+        if not self._epoch_cache.has(ts):
+            self._epoch_cache.add(ts, int(
                 (datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000
-            )
-        return self._epoch_cache[ts]
+            ))
+        return self._epoch_cache.get(ts)
 
     def grafana_date_to_epoch(self, ts):
         if ts:
@@ -71,22 +70,16 @@ class Covid19API:
     def get_data_by_time_country(self, end_time=None):
         countries = set()
         values = dict()
-        all_data = self._cache.get(end_time)
-        if all_data is not None:
-            values, countries = all_data[0], all_data[1]
-        else:
-            self._cache.clear()
-            for entry in self.covid19pg.list(end_time=end_time):
-                time = self.datetime_to_epoch(entry[0])
-                code = entry[1]
-                confirmed = entry[3]
-                death = entry[4]
-                recovered = entry[5]
-                if time not in values:
-                    values[time] = dict()
-                values[time][code] = {'confirmed': confirmed, 'death': death, 'recovered': recovered}
-                countries.add(code)
-            self._cache.add(end_time, (values, countries))
+        for entry in self.covid19pg.list(end_time=end_time):
+            time = self.datetime_to_epoch(entry[0])
+            code = entry[1]
+            confirmed = entry[3]
+            death = entry[4]
+            recovered = entry[5]
+            if time not in values:
+                values[time] = dict()
+            values[time][code] = {'confirmed': confirmed, 'death': death, 'recovered': recovered}
+            countries.add(code)
         return values, countries
 
     def get_data_by_time(self, values, countries, start_time):
@@ -133,5 +126,3 @@ class Covid19API:
                 output.append(metrics[target])
         return output
 
-    def clear_cache(self):
-        self._cache.clear()
