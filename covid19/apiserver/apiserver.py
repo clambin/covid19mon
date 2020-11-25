@@ -37,16 +37,18 @@ def grafana_search():
 def grafana_query():
     global g_covid19api
     req = request.get_json(force=True)
-    # max_data_points = req['maxDataPoints']
-    # interval = req['interval']
+    max_data_points = req['maxDataPoints']
+    interval = req['interval']
     start_time = req['range']['from']
     end_time = req['range']['to']
     targets = [(entry['target'], entry['type']) for entry in req['targets']]
-    logging.info(f'/query - {targets} ({start_time}/{end_time}')
+    logging.info(f'/query - {targets} ({start_time}/{end_time} max: {max_data_points} interval: {interval}')
     metrics = g_covid19api.get_data(targets, start_time, end_time)
     logging.debug(f'/query: {json.dumps(metrics, indent=4, sort_keys=True)}')
+    logging.info(f'/query found {len(metrics)} records')
+    result = json.dumps(metrics)
     logging.info('/query done')
-    return json.dumps(metrics)
+    return result
 
 
 def main(configuration):

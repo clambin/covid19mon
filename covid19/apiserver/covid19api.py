@@ -125,4 +125,3 @@ class Covid19API:
             if Covid19API.is_target(target, targets):
                 output.append(metrics[target])
         return output
-
