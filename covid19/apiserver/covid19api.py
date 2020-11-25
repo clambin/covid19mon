@@ -11,12 +11,9 @@ class DataCache:
         self._cache[key] = data
 
     def get(self, key):
-        if self.has(key):
+        if key in self._cache:
             return self._cache[key]
         return None
-
-    def has(self, key):
-        return key in self._cache
 
     def len(self):
         return len(self._cache)
@@ -47,11 +44,11 @@ class Covid19API:
         self.covid19pg = covidpg
 
     def datetime_to_epoch(self, ts):
-        if not self._epoch_cache.has(ts):
-            self._epoch_cache.add(ts, int(
-                (datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds() * 1000
-            ))
-        return self._epoch_cache.get(ts)
+        epoch = self._epoch_cache.get(ts)
+        if epoch is None:
+            epoch = int((datetime(ts.year, ts.month, ts.day) - datetime(1970, 1, 1)).total_seconds())
+            self._epoch_cache.add(ts, epoch)
+        return epoch
 
     def grafana_date_to_epoch(self, ts):
         if ts:
@@ -85,9 +82,9 @@ class Covid19API:
     def get_data_by_time(self, values, countries, start_time):
         metrics = dict()
         current = dict()
-        for t in self.targets:
-            metrics[t] = {'target': t, 'datapoints': []}
-            current[t] = 0
+        for target in self.targets:
+            metrics[target] = {'target': target, 'datapoints': []}
+            current[target] = 0
         last = {
             'confirmed': {country: 0 for country in countries},
             'death': {country: 0 for country in countries},
@@ -107,12 +104,12 @@ class Covid19API:
             current['active'] = current['confirmed'] - current['death'] - current['recovered']
             if time < skip_time:
                 continue
-            for t in self.targets:
-                if t.endswith('-delta'):
+            for target in self.targets:
+                if target.endswith('-delta'):
                     pass
                 else:
-                    metrics[t]['datapoints'].append([current[t], time])
-                    metrics[f'{t}-delta']['datapoints'].append([current[t] - previous[t], time])
+                    metrics[target]['datapoints'].append([current[target], 1000 * time])
+                    metrics[f'{target}-delta']['datapoints'].append([current[target] - previous[target], 1000 * time])
         return metrics
 
     def get_data(self, targets, start_time=None, end_time=None):
