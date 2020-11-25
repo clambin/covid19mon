@@ -15,7 +15,7 @@ spec :
           containers:
           - name: covid19mon
             image: clambin/covid19mon:develop
-            imagePullPolicy: Always
+            imagePullPolicy: IfNotPresent
             envFrom:
             - secretRef:
                 name: covid19mon
