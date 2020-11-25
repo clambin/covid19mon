@@ -1,6 +1,5 @@
 import os
 import datetime
-import pytz
 import psycopg2
 import psycopg2.errors
 import pytest
@@ -83,4 +82,4 @@ def test_pgconnector():
     last_updated = connector2.get_last_updated()
     assert len(last_updated.keys()) == 1
     assert 'Belgium' in last_updated
-    assert last_updated['Belgium'] == pytz.UTC.localize(datetime.datetime(2020, 11, 2))
+    assert last_updated['Belgium'] == datetime.datetime(2020, 11, 2)

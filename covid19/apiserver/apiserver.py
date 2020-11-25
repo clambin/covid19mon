@@ -2,15 +2,14 @@ import os
 import cProfile
 import json
 import logging
-import waitress
 from prometheus_flask_exporter import PrometheusMetrics
+from flask import Flask, request
+import waitress
 
 from covid19.apiserver.covid19api import Covid19API
-from covid19.version import version
 from covid19.apiserver.configuration import print_configuration
 from covid19.pgconnectors.covid import CovidPGConnector
-
-from flask import Flask, request
+from covid19.version import version
 
 
 app = Flask("test")
@@ -69,6 +68,6 @@ if __name__ == '__main__':
         os.getenv('pg_port'),
         os.getenv('pg_database'),
         os.getenv('pg_user'),
-        os.getenv('POSTGRES_PASSWORD')))
+        os.getenv('pg_password')))
     cProfile.run('g_covid19api.get_data([("confirmed","timeseries")])')
     cProfile.run('g_covid19api.get_data([("confirmed","timeseries")])')

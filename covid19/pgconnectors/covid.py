@@ -20,7 +20,7 @@ class CovidPGConnector(PostgresConnector):
             curr = conn.cursor()
             curr.execute("""
                 CREATE TABLE IF NOT EXISTS covid19 (
-                time TIMESTAMPTZ,
+                time TIMESTAMP WITHOUT TIME ZONE,
                 country_code TEXT,
                 country_name TEXT,
                 confirmed DOUBLE PRECISION,
