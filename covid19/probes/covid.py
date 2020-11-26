@@ -1,7 +1,6 @@
 from abc import ABC
 import logging
 from datetime import datetime
-import pytz
 from prometheus_client import Summary, Gauge
 from pimetrics.probe import APIProbe
 from covid19.pgconnectors.pgconnector import DBError
@@ -63,7 +62,7 @@ class CovidCountryProbe(CovidProbe):
                         logging.warning(f'Could not find country code for "{country}". Skipping ...')
                         self._bad_countries.append(country)
                     continue
-                update = pytz.UTC.localize(datetime.strptime(entry['lastUpdate'], '%Y-%m-%dT%H:%M:%S+00:00'))
+                update = datetime.strptime(entry['lastUpdate'], '%Y-%m-%dT%H:%M:%S+00:00')
                 if last_updated and country in last_updated.keys() and update <= last_updated[country]:
                     continue
                 if country not in output:
